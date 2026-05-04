@@ -17,11 +17,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <main id="wrap" aria-label="personal dashboard">
-    <section class="welcome-screen" id="welcomeScreen" aria-label="dashboard setup">
+    <section class="welcome-screen active" id="welcomeScreen" aria-label="dashboard setup">
       <div class="welcome-shell">
         <div class="welcome-copy">
           <p class="eyebrow">PERSONAL DASHBOARD</p>
@@ -64,8 +64,18 @@
           </section>
 
           <section class="welcome-section">
-            <h2>風格範例</h2>
+            <h2>版面配置</h2>
+            <div class="layout-grid" id="layoutGrid"></div>
+          </section>
+
+          <section class="welcome-section">
+            <h2>背景與風格</h2>
             <div class="style-grid" id="styleGrid"></div>
+          </section>
+
+          <section class="welcome-section">
+            <h2>動畫人物</h2>
+            <div class="character-picker" id="characterPicker"></div>
           </section>
 
           <div class="welcome-actions">
@@ -165,8 +175,8 @@
 
         <footer class="footer">
           <nav class="tabs" id="tabs" aria-label="dashboard tabs"></nav>
-          <button class="config-button" id="welcomeButton" type="button">MENU</button>
-          <button class="config-button" id="configButton" type="button">CONFIG</button>
+          <button class="config-button" id="welcomeButton" type="button">歡迎</button>
+          <button class="config-button" id="configButton" type="button">設定</button>
           <div class="page-indicator">
             <span id="pageText">01/03</span>
             <div class="progress"><span id="progressBar"></span></div>
@@ -179,7 +189,7 @@
   <dialog id="configDialog">
     <form method="dialog" class="config-panel">
       <div class="config-head">
-        <h2>Dashboard Data</h2>
+        <h2>個人資料設定</h2>
         <button type="submit" aria-label="close">×</button>
       </div>
       <label>
@@ -216,10 +226,6 @@
           使用裝置定位
         </label>
       </div>
-      <label>
-        進階：外部資料網址（可選）
-        <input id="dataUrlInput" type="url" placeholder="https://example.com/dashboard-data">
-      </label>
       <section class="form-list-section">
         <div class="form-list-head">
           <h3>行事曆</h3>
@@ -268,6 +274,6 @@
     </form>
   </dialog>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

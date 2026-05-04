@@ -940,7 +940,7 @@ dialog::backdrop {
   border: 1px solid var(--line);
   background: rgba(255, 252, 240, 0.56);
   color: var(--ink);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: inherit;
   font-size: 12px;
   letter-spacing: 0;
 }
@@ -1305,6 +1305,45 @@ dialog::backdrop {
   gap: 10px;
 }
 
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.layout-card {
+  min-height: 92px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  padding: 14px;
+}
+
+.layout-card strong,
+.character-card strong {
+  display: block;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+.layout-card small,
+.character-card small {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink-faint);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+}
+
+.layout-card.active,
+.character-card.active {
+  border-color: var(--stamp);
+  box-shadow: inset 0 -3px 0 var(--stamp);
+}
+
 .style-card {
   min-height: 126px;
   padding: 12px;
@@ -1332,6 +1371,160 @@ dialog::backdrop {
 .style-swatch-sunset { background: #fff0dc; color: #c34b2f; }
 .style-swatch-terminal { background: #04140d; color: #56f08a; }
 .style-swatch-noir { background: #11100e; color: #d8aa42; }
+
+.character-picker {
+  display: grid;
+  gap: 12px;
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.character-card {
+  min-height: 136px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.character-sample {
+  width: 54px;
+  height: 54px;
+  display: block;
+  margin-bottom: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.character-off {
+  border: 1px dashed var(--line);
+  background:
+    linear-gradient(45deg, transparent 46%, var(--stamp) 47% 53%, transparent 54%),
+    linear-gradient(-45deg, transparent 46%, var(--stamp) 47% 53%, transparent 54%);
+  opacity: 0.72;
+}
+
+.character-mixed {
+  background-image: url("fighter-energy.png"), url("fighter-arcade.png");
+  background-size: 48px 48px, 42px 42px;
+  background-position: left center, right center;
+}
+
+.character-energy { background-image: url("fighter-energy.png"); }
+.character-arcade { background-image: url("fighter-arcade.png"); }
+.character-armor { background-image: url("fighter-armor.png"); }
+.character-mystic { background-image: url("fighter-mystic.png"); }
+
+.character-count {
+  width: min(220px, 100%);
+}
+
+.character-count label {
+  display: grid;
+  gap: 6px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+
+.character-count input {
+  min-height: 38px;
+  border: 1px solid var(--line);
+  background: rgba(255, 252, 240, 0.56);
+  color: var(--ink);
+  padding: 6px 8px;
+}
+
+body[data-layout="clock-max"] .header {
+  height: 124px;
+}
+
+body[data-layout="clock-max"] .hairline {
+  top: 124px;
+}
+
+body[data-layout="clock-max"] .content {
+  top: 132px;
+}
+
+body[data-layout="clock-max"] .flip-card {
+  width: 60px;
+  height: 82px;
+}
+
+body[data-layout="clock-max"] .flip-card.sec {
+  width: 38px;
+  height: 54px;
+}
+
+body[data-layout="clock-max"] .flip-half {
+  height: 41px;
+  font-size: 76px;
+  line-height: 82px;
+}
+
+body[data-layout="clock-max"] .flip-card.sec .flip-half {
+  height: 27px;
+  font-size: 48px;
+  line-height: 54px;
+}
+
+body[data-layout="clock-max"] .flip-half span {
+  line-height: 82px;
+}
+
+body[data-layout="clock-max"] .flip-card.sec .flip-half span {
+  line-height: 54px;
+}
+
+body[data-layout="clock-max"] .flip-half.bottom span {
+  transform: translateY(-41px);
+}
+
+body[data-layout="clock-max"] .flip-card.sec .flip-half.bottom span {
+  transform: translateY(-27px);
+}
+
+body[data-layout="clock-max"] .clock-colon {
+  height: 82px;
+  font-size: 50px;
+}
+
+body[data-layout="clock-max"] .clock-colon.sec {
+  height: 54px;
+  font-size: 32px;
+}
+
+body[data-layout="dense"] .content {
+  left: 20px;
+  right: 20px;
+}
+
+body[data-layout="dense"] .panel-head {
+  margin-bottom: 8px;
+}
+
+body[data-layout="dense"] .weather-main,
+body[data-layout="dense"] .cal-list {
+  gap: 5px;
+}
+
+body[data-layout="calm"] .panel-title-en,
+body[data-layout="calm"] .weather-issued,
+body[data-layout="calm"] .page-indicator {
+  opacity: 0.62;
+}
+
+body[data-layout="calm"] .arena-layer {
+  opacity: 0.62;
+}
 
 body[data-style="cyber"] #device,
 body[data-style="terminal"] #device,
@@ -1484,6 +1677,8 @@ body[data-style="terminal"] .flip-half {
   .profile-grid,
   .page-picker,
   .style-grid,
+  .layout-grid,
+  .character-grid,
   .identity-grid,
   .config-grid,
   .form-row,
@@ -1509,6 +1704,8 @@ body[data-style="terminal"] .flip-half {
   .profile-grid,
   .page-picker,
   .style-grid,
+  .layout-grid,
+  .character-grid,
   .identity-grid,
   .config-grid,
   .form-row,

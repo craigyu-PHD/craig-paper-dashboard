@@ -25,6 +25,22 @@ const STYLE_DEFS = [
   { id: "noir", name: "Luxury Noir", zh: "黑金精品", desc: "黑底金線、展示櫃與高級鐘錶感", sample: "NOIR" }
 ];
 
+const LAYOUT_DEFS = [
+  { id: "classic", zh: "經典三頁", desc: "時間、資訊與頁籤保持均衡。" },
+  { id: "clock-max", zh: "大時間", desc: "把時間放到最大，適合桌面常駐。" },
+  { id: "dense", zh: "資訊密集", desc: "降低留白，適合電腦或大螢幕。" },
+  { id: "calm", zh: "極簡安靜", desc: "減少視覺刺激，適合長時間觀看。" }
+];
+
+const CHARACTER_DEFS = [
+  { id: "off", zh: "不要角色", desc: "保持純儀表板畫面。" },
+  { id: "mixed", zh: "混合角色", desc: "四種原創角色輪流登場。" },
+  { id: "energy", zh: "氣功武者", desc: "藍色能量攻擊。" },
+  { id: "arcade", zh: "街機格鬥", desc: "復古格鬥節奏。" },
+  { id: "armor", zh: "裝甲英雄", desc: "科技裝甲射擊。" },
+  { id: "mystic", zh: "能量法師", desc: "紫色魔法光效。" }
+];
+
 const DEFAULT_PROFILES = [
   {
     id: "craig",
@@ -33,6 +49,7 @@ const DEFAULT_PROFILES = [
     identity: "正在建立個人桌面系統",
     role: "個人桌面 · 待補完整資料",
     style: "paper",
+    layout: "classic",
     enabledTabs: ["weather", "calendar", "countdown", "notes"],
     location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: true },
     dataUrl: "",
@@ -62,6 +79,7 @@ const DEFAULT_PROFILES = [
     identity: "共用展示使用者",
     role: "共用展示 · 可複製成同事設定檔",
     style: "ocean",
+    layout: "classic",
     enabledTabs: ["weather", "calendar", "notes"],
     location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: false },
     dataUrl: "",
@@ -135,6 +153,7 @@ function normalizeProfile(profile) {
     enabledTabs: Array.isArray(profile.enabledTabs) && profile.enabledTabs.length ? profile.enabledTabs : fallback.enabledTabs,
     location: { ...fallback.location, ...(profile.location || {}) },
     dataUrl: profile.dataUrl || "",
+    layout: profile.layout || fallback.layout || "classic",
     battle: { ...fallback.battle, ...(profile.battle || {}) },
     events: Array.isArray(profile.events) ? profile.events : fallback.events,
     countdowns: Array.isArray(profile.countdowns) ? profile.countdowns : fallback.countdowns,
@@ -153,6 +172,10 @@ function getProfile(id = selectedProfileId) {
 
 function getStyle(id) {
   return STYLE_DEFS.find((style) => style.id === id) || STYLE_DEFS[0];
+}
+
+function getLayout(id) {
+  return LAYOUT_DEFS.find((layout) => layout.id === id) || LAYOUT_DEFS[0];
 }
 
 function getCallName() {
@@ -241,6 +264,31 @@ function renderWelcome() {
     </button>`
   )).join("");
 
+  $("#layoutGrid").innerHTML = LAYOUT_DEFS.map((layout) => (
+    `<button class="layout-card${activeProfile.layout === layout.id ? " active" : ""}" data-layout="${layout.id}" type="button">
+      <strong>${layout.zh}</strong>
+      <small>${layout.desc}</small>
+    </button>`
+  )).join("");
+
+  const battle = activeProfile.battle || {};
+  const characterMode = battle.enabled ? (battle.theme || "mixed") : "off";
+  $("#characterPicker").innerHTML = `
+    <div class="character-grid">
+      ${CHARACTER_DEFS.map((character) => (
+        `<button class="character-card${characterMode === character.id ? " active" : ""}" data-character="${character.id}" type="button">
+          <span class="character-sample character-${character.id}"></span>
+          <strong>${character.zh}</strong>
+          <small>${character.desc}</small>
+        </button>`
+      )).join("")}
+    </div>
+    <div class="character-count">
+      <label>角色數量
+        <input id="welcomeBattleCountInput" type="number" min="2" max="8" step="1" value="${Math.max(2, Math.min(8, Number(battle.count) || 3))}">
+      </label>
+    </div>`;
+
   $all("[data-profile]").forEach((button) => {
     button.addEventListener("click", () => {
       selectedProfileId = button.dataset.profile;
@@ -267,6 +315,40 @@ function renderWelcome() {
       applyTheme();
       renderWelcome();
     });
+  });
+
+  $all("[data-layout]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeProfile.layout = button.dataset.layout;
+      updateActiveProfile();
+      applyTheme();
+      renderWelcome();
+    });
+  });
+
+  $all("[data-character]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const character = button.dataset.character;
+      activeProfile.battle = {
+        ...(activeProfile.battle || {}),
+        enabled: character !== "off",
+        theme: character === "off" ? "mixed" : character,
+        count: Math.max(2, Math.min(8, Number($("#welcomeBattleCountInput")?.value) || activeProfile.battle?.count || 3))
+      };
+      updateActiveProfile();
+      renderArena();
+      renderWelcome();
+    });
+  });
+
+  $("#welcomeBattleCountInput")?.addEventListener("change", (event) => {
+    activeProfile.battle = {
+      ...(activeProfile.battle || {}),
+      count: Math.max(2, Math.min(8, Number(event.target.value) || 3))
+    };
+    updateActiveProfile();
+    renderArena();
+    renderWelcome();
   });
 }
 
@@ -303,6 +385,7 @@ function updateActiveProfile() {
 
 function applyTheme() {
   document.body.dataset.style = activeProfile.style || "paper";
+  document.body.dataset.layout = activeProfile.layout || "classic";
   document.title = `${getCallName()} Dashboard`;
 }
 
@@ -691,7 +774,6 @@ function openConfig() {
   $("#latitudeInput").value = activeProfile.location?.latitude ?? "";
   $("#longitudeInput").value = activeProfile.location?.longitude ?? "";
   $("#useDeviceLocationInput").checked = Boolean(activeProfile.location?.useDeviceLocation);
-  $("#dataUrlInput").value = activeProfile.dataUrl || "";
   renderConfigEditors();
   $("#battleEnabledInput").checked = Boolean(activeProfile.battle?.enabled);
   $("#battleCountInput").value = activeProfile.battle?.count || 3;
@@ -740,7 +822,6 @@ function setupConfig() {
       longitude: Number($("#longitudeInput").value) || 121.5654,
       useDeviceLocation: $("#useDeviceLocationInput").checked
     };
-    activeProfile.dataUrl = $("#dataUrlInput").value.trim();
     activeProfile.events = collectEvents();
     activeProfile.countdowns = collectCountdowns();
     activeProfile.notes = collectNotes();
@@ -760,6 +841,7 @@ function setupConfig() {
     activeProfile.identity = defaults.identity;
     activeProfile.location = defaults.location;
     activeProfile.dataUrl = defaults.dataUrl;
+    activeProfile.layout = defaults.layout || "classic";
     activeProfile.battle = defaults.battle;
     activeProfile.events = defaults.events;
     activeProfile.countdowns = defaults.countdowns;
@@ -770,7 +852,6 @@ function setupConfig() {
     $("#latitudeInput").value = activeProfile.location?.latitude ?? "";
     $("#longitudeInput").value = activeProfile.location?.longitude ?? "";
     $("#useDeviceLocationInput").checked = Boolean(activeProfile.location?.useDeviceLocation);
-    $("#dataUrlInput").value = activeProfile.dataUrl || "";
     renderConfigEditors();
     $("#battleEnabledInput").checked = Boolean(activeProfile.battle?.enabled);
     $("#battleCountInput").value = activeProfile.battle?.count || 3;
