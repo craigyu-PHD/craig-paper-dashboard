@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15110c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Craig Dashboard">
+  <meta name="apple-mobile-web-app-title" content="Craig Dashboard">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="msapplication-TileColor" content="#15110c">
+  <title>Craig Paper Dashboard</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="wrap" aria-label="Craig personal paper dashboard">
+    <section id="stage">
+      <div id="device">
+        <header class="header">
+          <div class="date-block">
+            <div class="date-line1" id="eraLine">A.D. 2026 · MAY</div>
+            <div class="date-line2">
+              <span class="date-num" id="dateNum">5<span class="slash">/</span>4</span>
+              <span class="date-weekday" id="weekday">星期一</span>
+            </div>
+            <div class="date-line3" id="weekLine">Monday · week 19</div>
+          </div>
+          <div class="clock" aria-label="current time">
+            <div class="flip-group" data-clock="hh"></div>
+            <div class="clock-colon">:</div>
+            <div class="flip-group" data-clock="mm"></div>
+            <div class="clock-colon sec">:</div>
+            <div class="flip-group sec" data-clock="ss"></div>
+          </div>
+        </header>
+
+        <div class="hairline"></div>
+
+        <section class="content">
+          <article class="tab-panel active" data-panel="weather">
+            <div class="panel-head">
+              <h1 class="panel-title">天　氣</h1>
+              <p class="panel-title-en" id="weatherSource">OPEN-METEO · LIVE</p>
+            </div>
+            <div class="weather-main">
+              <div class="weather-loc-row">
+                <div class="weather-loc" id="weatherCity">臺北市</div>
+                <div class="weather-loc-en" id="weatherCoords">25.04°N 121.56°E</div>
+              </div>
+              <div class="weather-cond" id="weatherSummary">讀取天氣資料中</div>
+              <div class="weather-hero">
+                <div class="weather-hero-left">
+                  <div class="weather-hero-temp"><span id="weatherTemp">--</span><span class="deg">°</span></div>
+                  <div class="weather-hero-meta">
+                    <span id="weatherFeels">體感 --°</span>
+                    <span class="sep">|</span>
+                    <span id="weatherRain">降雨 --%</span>
+                  </div>
+                </div>
+                <div class="weather-icon" id="weatherIcon" aria-hidden="true"></div>
+              </div>
+              <div class="weather-blocks" id="weatherBlocks"></div>
+              <p class="weather-issued" id="weatherUpdated">UPDATED · --:--</p>
+            </div>
+          </article>
+
+          <article class="tab-panel" data-panel="calendar">
+            <div class="panel-head">
+              <h1 class="panel-title">行　事　曆</h1>
+              <p class="panel-title-en" id="calendarSource">TODAY · LOCAL</p>
+            </div>
+            <div class="cal-now" id="calendarNow">
+              <div>
+                <div class="cal-now-title" id="eventTitle">今日整理</div>
+                <div class="cal-now-time" id="eventTime">09:00 - 09:30 · Craig Desk</div>
+              </div>
+              <div class="cal-mins">
+                <strong id="eventMins">--</strong>
+                <span id="eventMinsLabel">分鐘</span>
+              </div>
+            </div>
+            <div class="cal-list" id="calendarList"></div>
+          </article>
+
+          <article class="tab-panel" data-panel="countdown">
+            <div class="panel-head">
+              <h1 class="panel-title">倒　數　日</h1>
+              <p class="panel-title-en">D-DAY · COUNTING</p>
+            </div>
+            <div class="count-list" id="countList"></div>
+          </article>
+        </section>
+
+        <footer class="footer">
+          <nav class="tabs" aria-label="dashboard tabs">
+            <button class="tab active" data-tab="weather" type="button">天　氣</button>
+            <button class="tab" data-tab="calendar" type="button">行事曆</button>
+            <button class="tab" data-tab="countdown" type="button">倒數日</button>
+          </nav>
+          <button class="config-button" id="configButton" type="button">CONFIG</button>
+          <div class="page-indicator">
+            <span id="pageText">01/03</span>
+            <div class="progress"><span id="progressBar"></span></div>
+          </div>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="configDialog">
+    <form method="dialog" class="config-panel">
+      <div class="config-head">
+        <h2>Dashboard Data</h2>
+        <button type="submit" aria-label="close">×</button>
+      </div>
+      <label>
+        行事曆 JSON
+        <textarea id="eventsInput" spellcheck="false"></textarea>
+      </label>
+      <label>
+        倒數日 JSON
+        <textarea id="countdownsInput" spellcheck="false"></textarea>
+      </label>
+      <div class="config-actions">
+        <button id="resetConfig" type="button">還原預設</button>
+        <button id="saveConfig" value="default">儲存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

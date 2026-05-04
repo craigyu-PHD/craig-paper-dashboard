@@ -1,0 +1,19 @@
+{
+  "name": "Craig Paper Dashboard",
+  "short_name": "Dashboard",
+  "description": "A paper-style personal dashboard for phones, tablets, desktop browsers, and always-on displays.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#15110c",
+  "theme_color": "#15110c",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
