@@ -73,12 +73,22 @@ const LAYOUT_DEFS = [
 
 const CHARACTER_DEFS = [
   { id: "off", zh: "不要角色", desc: "保持純儀表板畫面。" },
-  { id: "mixed", zh: "混合角色", desc: "四種原創角色輪流登場。" },
-  { id: "energy", zh: "氣功武者", desc: "藍色能量攻擊。" },
-  { id: "arcade", zh: "街機格鬥", desc: "復古格鬥節奏。" },
-  { id: "armor", zh: "裝甲英雄", desc: "科技裝甲射擊。" },
-  { id: "mystic", zh: "能量法師", desc: "紫色魔法光效。" }
+  { id: "mixed", zh: "齊打交小隊", desc: "四種原創角色混戰。" },
+  { id: "energy", zh: "冰氣少年", desc: "藍色氣功與遠距衝擊。" },
+  { id: "arcade", zh: "火拳格鬥家", desc: "近身連打與踢擊。" },
+  { id: "armor", zh: "裝甲隊長", desc: "重擊、盾衝與高防禦。" },
+  { id: "mystic", zh: "術法少年", desc: "紫色法術與範圍攻擊。" }
 ];
+
+const FIGHTER_POOL = ["energy", "arcade", "armor", "mystic"];
+const FIGHTER_META = {
+  energy: { accent: "#35e8ff", label: ["冰", "氣", "波", "瞬"], speed: 0.072, reach: 88 },
+  arcade: { accent: "#ffcf33", label: ["拳", "踢", "連", "爆"], speed: 0.082, reach: 62 },
+  armor: { accent: "#7df9ff", label: ["盾", "衝", "鋼", "破"], speed: 0.055, reach: 70 },
+  mystic: { accent: "#ff7df5", label: ["術", "星", "門", "幻"], speed: 0.064, reach: 96 }
+};
+const ARENA_W = 736;
+const ARENA_H = 414;
 
 const DEFAULT_PROFILES = [
   {
@@ -150,6 +160,9 @@ let burnTimer = null;
 let weatherRequestId = 0;
 let lastDateKey = "";
 let lastCalendarMinuteKey = "";
+let arenaFrame = null;
+let arenaState = null;
+const fighterImages = {};
 
 function $(selector) {
   return document.querySelector(selector);
@@ -234,6 +247,30 @@ function stylePreviewVars(style) {
 
 function getCallName() {
   return activeProfile?.callName || activeProfile?.name || "Guest";
+}
+
+function randomBetween(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function fighterLimit() {
+  const lowPower = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+  const compact = Math.min(window.innerWidth, window.innerHeight) < 520;
+  return lowPower || compact ? 4 : 6;
+}
+
+function getFighterImage(type) {
+  if (!fighterImages[type]) {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = `fighter-${type}.gif`;
+    fighterImages[type] = image;
+  }
+  return fighterImages[type];
 }
 
 function setScale() {
@@ -349,7 +386,7 @@ function renderWelcome() {
     </div>
     <div class="character-count">
       <label>角色數量
-        <input id="welcomeBattleCountInput" type="number" min="2" max="8" step="1" value="${Math.max(2, Math.min(8, Number(battle.count) || 3))}">
+        <input id="welcomeBattleCountInput" type="number" min="2" max="6" step="1" value="${Math.max(2, Math.min(6, Number(battle.count) || 3))}">
       </label>
     </div>`;
 
@@ -399,7 +436,7 @@ function renderWelcome() {
         ...(activeProfile.battle || {}),
         enabled: character !== "off",
         theme: character === "off" ? "mixed" : character,
-        count: Math.max(2, Math.min(8, Number($("#welcomeBattleCountInput")?.value) || activeProfile.battle?.count || 3))
+        count: Math.max(2, Math.min(6, Number($("#welcomeBattleCountInput")?.value) || activeProfile.battle?.count || 3))
       };
       updateActiveProfile();
       renderArena();
@@ -410,7 +447,7 @@ function renderWelcome() {
   $("#welcomeBattleCountInput")?.addEventListener("change", (event) => {
     activeProfile.battle = {
       ...(activeProfile.battle || {}),
-      count: Math.max(2, Math.min(8, Number(event.target.value) || 3))
+      count: Math.max(2, Math.min(6, Number(event.target.value) || 3))
     };
     updateActiveProfile();
     renderArena();
@@ -420,11 +457,13 @@ function renderWelcome() {
 
 function showWelcome() {
   $("#welcomeScreen").classList.add("active");
+  renderArena();
 }
 
 function hideWelcome() {
   $("#welcomeScreen").classList.remove("active");
   panelStartedAt = Date.now();
+  renderArena();
 }
 
 function createProfile() {
@@ -487,36 +526,217 @@ function renderTabs() {
   });
 }
 
+function stopArena() {
+  if (arenaFrame) cancelAnimationFrame(arenaFrame);
+  arenaFrame = null;
+  arenaState = null;
+  $("#arenaLayer").innerHTML = "";
+}
+
+function createFighter(index, theme) {
+  const type = theme === "mixed" ? FIGHTER_POOL[index % FIGHTER_POOL.length] : theme;
+  const x = randomBetween(80, ARENA_W - 80);
+  const y = randomBetween(78, ARENA_H - 56);
+  return {
+    id: index,
+    type,
+    x,
+    y,
+    vx: 0,
+    vy: 0,
+    face: index % 2 ? -1 : 1,
+    targetX: randomBetween(70, ARENA_W - 70),
+    targetY: randomBetween(80, ARENA_H - 58),
+    state: "walk",
+    actionUntil: 0,
+    cooldown: randomBetween(300, 1200),
+    hitUntil: 0,
+    labelUntil: 0,
+    label: FIGHTER_META[type].label[index % FIGHTER_META[type].label.length],
+    hp: 5
+  };
+}
+
+function startArena(count, theme) {
+  const arena = $("#arenaLayer");
+  const canvas = document.createElement("canvas");
+  canvas.className = "arena-canvas";
+  canvas.width = ARENA_W;
+  canvas.height = ARENA_H;
+  arena.innerHTML = "";
+  arena.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d", { alpha: true });
+  arenaState = {
+    key: `${count}-${theme}`,
+    canvas,
+    ctx,
+    last: performance.now(),
+    fighters: Array.from({ length: count }, (_, index) => createFighter(index, theme))
+  };
+  for (const fighter of arenaState.fighters) getFighterImage(fighter.type);
+  arenaFrame = requestAnimationFrame(stepArena);
+}
+
+function nearestOpponent(fighter, fighters) {
+  let best = null;
+  let bestDistance = Infinity;
+  for (const candidate of fighters) {
+    if (candidate.id === fighter.id) continue;
+    const dx = candidate.x - fighter.x;
+    const dy = candidate.y - fighter.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance < bestDistance) {
+      best = candidate;
+      bestDistance = distance;
+    }
+  }
+  return { target: best, distance: bestDistance };
+}
+
+function chooseRoamTarget(fighter) {
+  fighter.targetX = randomBetween(56, ARENA_W - 56);
+  fighter.targetY = randomBetween(76, ARENA_H - 48);
+}
+
+function updateFighter(fighter, fighters, dt, now) {
+  const meta = FIGHTER_META[fighter.type];
+  fighter.cooldown = Math.max(0, fighter.cooldown - dt);
+  const acting = now < fighter.actionUntil;
+  const { target, distance } = nearestOpponent(fighter, fighters);
+
+  if (target && !acting && distance < meta.reach && fighter.cooldown <= 0) {
+    const action = Math.random() > 0.42 ? "strike" : "blast";
+    fighter.state = action;
+    fighter.actionUntil = now + (action === "blast" ? 520 : 360);
+    fighter.cooldown = randomBetween(820, 1600);
+    fighter.label = meta.label[Math.floor(Math.random() * meta.label.length)];
+    fighter.labelUntil = now + 520;
+    fighter.face = target.x >= fighter.x ? 1 : -1;
+
+    const force = action === "blast" ? 26 : 15;
+    const angle = Math.atan2(target.y - fighter.y, target.x - fighter.x);
+    target.vx += Math.cos(angle) * force;
+    target.vy += Math.sin(angle) * force;
+    target.hitUntil = now + 260;
+    target.hp -= action === "blast" ? 2 : 1;
+    if (target.hp <= 0) {
+      target.hp = 5;
+      target.x = randomBetween(80, ARENA_W - 80);
+      target.y = randomBetween(78, ARENA_H - 56);
+      chooseRoamTarget(target);
+    }
+    return;
+  }
+
+  if (target && distance < 190) {
+    fighter.targetX = target.x - Math.sign(target.x - fighter.x || 1) * randomBetween(48, 82);
+    fighter.targetY = target.y + randomBetween(-38, 38);
+  } else if (Math.hypot(fighter.targetX - fighter.x, fighter.targetY - fighter.y) < 18 || Math.random() < 0.006) {
+    chooseRoamTarget(fighter);
+  }
+
+  const dx = fighter.targetX - fighter.x;
+  const dy = fighter.targetY - fighter.y;
+  const distanceToTarget = Math.max(1, Math.hypot(dx, dy));
+  const speed = meta.speed * dt;
+  fighter.vx += (dx / distanceToTarget) * speed;
+  fighter.vy += (dy / distanceToTarget) * speed;
+  fighter.vx *= 0.82;
+  fighter.vy *= 0.82;
+  fighter.x = clamp(fighter.x + fighter.vx, 40, ARENA_W - 48);
+  fighter.y = clamp(fighter.y + fighter.vy, 64, ARENA_H - 28);
+  if (Math.abs(fighter.vx) > 0.04) fighter.face = fighter.vx > 0 ? 1 : -1;
+  if (!acting) fighter.state = "walk";
+}
+
+function drawFighter(ctx, fighter, now) {
+  const meta = FIGHTER_META[fighter.type];
+  const image = getFighterImage(fighter.type);
+  const acting = now < fighter.actionUntil;
+  const hit = now < fighter.hitUntil;
+  const label = now < fighter.labelUntil;
+  const bob = Math.sin(now / 110 + fighter.id) * 2;
+
+  ctx.save();
+  ctx.translate(fighter.x, fighter.y);
+  ctx.scale(fighter.face, 1);
+  ctx.globalAlpha = 0.26;
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.ellipse(0, 18, 28, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  if (acting) {
+    ctx.strokeStyle = meta.accent;
+    ctx.lineWidth = 3;
+    ctx.globalAlpha = 0.72;
+    ctx.beginPath();
+    ctx.arc(28, -26, fighter.state === "blast" ? 21 : 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  if (image.complete) ctx.drawImage(image, -48, -78 + bob, 96, 96);
+  if (hit) {
+    ctx.globalCompositeOperation = "source-atop";
+    ctx.fillStyle = "rgba(255,255,255,0.44)";
+    ctx.fillRect(-48, -78, 96, 96);
+    ctx.globalCompositeOperation = "source-over";
+  }
+  ctx.restore();
+
+  ctx.fillStyle = "rgba(0,0,0,0.34)";
+  ctx.fillRect(fighter.x - 18, fighter.y + 24, 36, 3);
+  ctx.fillStyle = meta.accent;
+  ctx.fillRect(fighter.x - 18, fighter.y + 24, 36 * (fighter.hp / 5), 3);
+
+  if (label) {
+    ctx.save();
+    ctx.fillStyle = meta.accent;
+    ctx.strokeStyle = "#101014";
+    ctx.lineWidth = 3;
+    ctx.font = "700 14px sans-serif";
+    ctx.textAlign = "center";
+    ctx.strokeText(fighter.label, fighter.x, fighter.y - 72);
+    ctx.fillText(fighter.label, fighter.x, fighter.y - 72);
+    ctx.restore();
+  }
+}
+
+function stepArena(now) {
+  if (!arenaState) return;
+  const elapsed = now - arenaState.last;
+  if (elapsed < 33) {
+    arenaFrame = requestAnimationFrame(stepArena);
+    return;
+  }
+  const dt = Math.min(66, elapsed);
+  arenaState.last = now;
+  for (const fighter of arenaState.fighters) updateFighter(fighter, arenaState.fighters, dt, now);
+  const { ctx } = arenaState;
+  ctx.clearRect(0, 0, ARENA_W, ARENA_H);
+  [...arenaState.fighters].sort((a, b) => a.y - b.y).forEach((fighter) => drawFighter(ctx, fighter, now));
+  arenaFrame = requestAnimationFrame(stepArena);
+}
+
 function renderArena() {
   const arena = $("#arenaLayer");
   const battle = activeProfile.battle || {};
-  const showArena = battle.enabled;
+  const welcomeActive = $("#welcomeScreen").classList.contains("active");
+  const showArena = battle.enabled && !welcomeActive;
   arena.classList.toggle("active", showArena);
   if (!showArena) {
-    arena.innerHTML = "";
+    stopArena();
     return;
   }
-  const count = Math.max(2, Math.min(8, Number(battle.count) || 3));
+  const count = Math.max(2, Math.min(fighterLimit(), Number(battle.count) || 3));
   const theme = battle.theme || "mixed";
-  const pool = ["energy", "arcade", "armor", "mystic"];
-  const labels = {
-    arcade: ["拳", "踢", "閃", "破", "疾", "反", "連", "爆"],
-    energy: ["氣", "波", "光", "瞬", "炎", "雷", "界", "衝"],
-    armor: ["甲", "盾", "砲", "飛", "鋼", "核", "鎖", "推"],
-    mystic: ["星", "月", "咒", "門", "幻", "焰", "晶", "靈"]
-  };
-  arena.innerHTML = Array.from({ length: count }, (_, index) => {
-    const side = index % 4;
-    const delay = (index * -1.7).toFixed(1);
-    const actionDelay = (index * -0.32).toFixed(2);
-    const fighterTheme = theme === "mixed" ? pool[index % pool.length] : theme;
-    const label = labels[fighterTheme]?.[index % 8] || "戰";
-    return `<span class="fighter fighter-${side} fighter-${fighterTheme}" style="--delay:${delay}s; --action-delay:${actionDelay}s; --slot:${index};" aria-hidden="true">
-      <img class="fighter-gif" src="fighter-${fighterTheme}.gif" alt="" decoding="async">
-      <span class="fighter-burst"></span>
-      <span class="fighter-label">${label}</span>
-    </span>`;
-  }).join("");
+  const key = `${count}-${theme}`;
+  if (arenaState?.key === key) return;
+  if (arenaFrame) cancelAnimationFrame(arenaFrame);
+  startArena(count, theme);
 }
 
 function weatherLabel(code) {
@@ -882,7 +1102,7 @@ function setupConfig() {
     activeProfile.notes = collectNotes();
     activeProfile.battle = {
       enabled: $("#battleEnabledInput").checked,
-      count: Math.max(2, Math.min(8, Number($("#battleCountInput").value) || 3)),
+      count: Math.max(2, Math.min(6, Number($("#battleCountInput").value) || 3)),
       theme: $("#battleThemeInput").value || "mixed"
     };
     updateActiveProfile();

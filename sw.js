@@ -1,4 +1,4 @@
-const CACHE_NAME = "craig-paper-dashboard-v9";
+const CACHE_NAME = "craig-paper-dashboard-v10";
 const ASSETS = [
   "./",
   "./index.html",
