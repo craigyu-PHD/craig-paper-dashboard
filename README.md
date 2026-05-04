@@ -23,10 +23,10 @@
 
 - 天氣：Open-Meteo，會優先使用瀏覽器定位；拒絕定位時預設臺北市。
 - 地點：可在 `CONFIG` 設定地點名稱、緯度、經度，或改用裝置定位。
-- 外部資料：可在 `CONFIG` 填入 JSON URL，格式支援 `events`、`countdowns`、`notes`、`location`。
-- 行事曆：瀏覽器 localStorage，可用畫面底部 `CONFIG` 編輯 JSON。
-- 倒數日：瀏覽器 localStorage，可用 `CONFIG` 編輯 JSON。
-- 焦點：瀏覽器 localStorage，可用 `CONFIG` 編輯 JSON。
+- 外部資料：可在 `CONFIG` 填入資料網址，由管理者提供遠端資料來源。
+- 行事曆：瀏覽器 localStorage，可用畫面底部 `CONFIG` 透過欄位新增、修改、刪除。
+- 倒數日：瀏覽器 localStorage，可用 `CONFIG` 透過欄位新增、修改、刪除。
+- 焦點：瀏覽器 localStorage，可用 `CONFIG` 透過欄位新增、修改、刪除。
 
 ## Reference
 

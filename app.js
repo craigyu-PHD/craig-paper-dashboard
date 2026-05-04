@@ -611,13 +611,75 @@ function startBurnInProtection() {
   burnTimer = setInterval(updateBurnInProtection, 35000);
 }
 
-function parseJsonList(selector, fallback) {
-  try {
-    const parsed = JSON.parse($(selector).value || "[]");
-    return Array.isArray(parsed) ? parsed : fallback;
-  } catch {
-    return fallback;
-  }
+function escapeHtml(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function appendEventRow(event = {}) {
+  $("#eventsEditor").insertAdjacentHTML("beforeend", `<div class="form-row event-row">
+    <label>標題<input class="event-title" type="text" value="${escapeHtml(event.title || "")}"></label>
+    <label>開始<input class="event-start" type="time" value="${escapeHtml(event.start || "09:00")}"></label>
+    <label>結束<input class="event-end" type="time" value="${escapeHtml(event.end || "10:00")}"></label>
+    <label>地點<input class="event-where" type="text" value="${escapeHtml(event.where || "")}"></label>
+    <button class="remove-row" type="button">刪除</button>
+  </div>`);
+}
+
+function appendCountdownRow(item = {}) {
+  $("#countdownsEditor").insertAdjacentHTML("beforeend", `<div class="form-row countdown-row">
+    <label>標題<input class="count-title-input" type="text" value="${escapeHtml(item.title || "")}"></label>
+    <label>日期<input class="count-date-input" type="date" value="${escapeHtml(item.date || "")}"></label>
+    <label class="checkbox-label repeat-field"><input class="count-repeat-input" type="checkbox" ${item.repeat ? "checked" : ""}>每年重複</label>
+    <button class="remove-row" type="button">刪除</button>
+  </div>`);
+}
+
+function appendNoteRow(note = {}) {
+  $("#notesEditor").insertAdjacentHTML("beforeend", `<div class="form-row note-row">
+    <label>標題<input class="note-title-input" type="text" value="${escapeHtml(note.title || "")}"></label>
+    <label class="wide-field">內容<textarea class="note-body-input">${escapeHtml(note.body || "")}</textarea></label>
+    <button class="remove-row" type="button">刪除</button>
+  </div>`);
+}
+
+function renderConfigEditors() {
+  $("#eventsEditor").innerHTML = "";
+  $("#countdownsEditor").innerHTML = "";
+  $("#notesEditor").innerHTML = "";
+  (activeProfile.events || []).forEach(appendEventRow);
+  (activeProfile.countdowns || []).forEach(appendCountdownRow);
+  (activeProfile.notes || []).forEach(appendNoteRow);
+  if (!activeProfile.events?.length) appendEventRow();
+  if (!activeProfile.countdowns?.length) appendCountdownRow();
+  if (!activeProfile.notes?.length) appendNoteRow();
+}
+
+function collectEvents() {
+  return $all("#eventsEditor .event-row").map((row) => ({
+    title: row.querySelector(".event-title").value.trim(),
+    start: row.querySelector(".event-start").value || "09:00",
+    end: row.querySelector(".event-end").value || "10:00",
+    where: row.querySelector(".event-where").value.trim()
+  })).filter((event) => event.title);
+}
+
+function collectCountdowns() {
+  return $all("#countdownsEditor .countdown-row").map((row) => ({
+    title: row.querySelector(".count-title-input").value.trim(),
+    date: row.querySelector(".count-date-input").value,
+    repeat: row.querySelector(".count-repeat-input").checked
+  })).filter((item) => item.title && item.date);
+}
+
+function collectNotes() {
+  return $all("#notesEditor .note-row").map((row) => ({
+    title: row.querySelector(".note-title-input").value.trim(),
+    body: row.querySelector(".note-body-input").value.trim()
+  })).filter((note) => note.title || note.body);
 }
 
 function openConfig() {
@@ -630,9 +692,7 @@ function openConfig() {
   $("#longitudeInput").value = activeProfile.location?.longitude ?? "";
   $("#useDeviceLocationInput").checked = Boolean(activeProfile.location?.useDeviceLocation);
   $("#dataUrlInput").value = activeProfile.dataUrl || "";
-  $("#eventsInput").value = JSON.stringify(activeProfile.events || [], null, 2);
-  $("#countdownsInput").value = JSON.stringify(activeProfile.countdowns || [], null, 2);
-  $("#notesInput").value = JSON.stringify(activeProfile.notes || [], null, 2);
+  renderConfigEditors();
   $("#battleEnabledInput").checked = Boolean(activeProfile.battle?.enabled);
   $("#battleCountInput").value = activeProfile.battle?.count || 3;
   $("#battleThemeInput").value = activeProfile.battle?.theme || "mixed";
@@ -645,6 +705,21 @@ function setupConfig() {
   $("#newProfileButton").addEventListener("click", createProfile);
   $("#welcomeButton").addEventListener("click", showWelcome);
   $("#enterDashboard").addEventListener("click", hideWelcome);
+  $("#addEventButton").addEventListener("click", () => appendEventRow());
+  $("#addCountdownButton").addEventListener("click", () => appendCountdownRow());
+  $("#addNoteButton").addEventListener("click", () => appendNoteRow());
+  $("#configDialog").addEventListener("click", (event) => {
+    if (event.target.classList.contains("remove-row")) {
+      const list = event.target.closest(".form-list");
+      event.target.closest(".form-row").remove();
+      if (list && !list.querySelector(".form-row")) {
+        if (list.id === "eventsEditor") appendEventRow();
+        if (list.id === "countdownsEditor") appendCountdownRow();
+        if (list.id === "notesEditor") appendNoteRow();
+      }
+    }
+  });
+
   $("#saveIdentityButton").addEventListener("click", () => {
     activeProfile.name = $("#welcomeNameInput").value.trim() || activeProfile.name;
     activeProfile.callName = $("#welcomeCallNameInput").value.trim() || activeProfile.callName || activeProfile.name;
@@ -666,9 +741,9 @@ function setupConfig() {
       useDeviceLocation: $("#useDeviceLocationInput").checked
     };
     activeProfile.dataUrl = $("#dataUrlInput").value.trim();
-    activeProfile.events = parseJsonList("#eventsInput", activeProfile.events || []);
-    activeProfile.countdowns = parseJsonList("#countdownsInput", activeProfile.countdowns || []);
-    activeProfile.notes = parseJsonList("#notesInput", activeProfile.notes || []);
+    activeProfile.events = collectEvents();
+    activeProfile.countdowns = collectCountdowns();
+    activeProfile.notes = collectNotes();
     activeProfile.battle = {
       enabled: $("#battleEnabledInput").checked,
       count: Math.max(2, Math.min(8, Number($("#battleCountInput").value) || 3)),
@@ -696,9 +771,7 @@ function setupConfig() {
     $("#longitudeInput").value = activeProfile.location?.longitude ?? "";
     $("#useDeviceLocationInput").checked = Boolean(activeProfile.location?.useDeviceLocation);
     $("#dataUrlInput").value = activeProfile.dataUrl || "";
-    $("#eventsInput").value = JSON.stringify(activeProfile.events, null, 2);
-    $("#countdownsInput").value = JSON.stringify(activeProfile.countdowns, null, 2);
-    $("#notesInput").value = JSON.stringify(activeProfile.notes, null, 2);
+    renderConfigEditors();
     $("#battleEnabledInput").checked = Boolean(activeProfile.battle?.enabled);
     $("#battleCountInput").value = activeProfile.battle?.count || 3;
     $("#battleThemeInput").value = activeProfile.battle?.theme || "mixed";

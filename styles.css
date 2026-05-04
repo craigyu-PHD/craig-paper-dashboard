@@ -886,11 +886,13 @@ select {
 }
 
 dialog {
-  width: min(680px, calc(100vw - 28px));
+  width: min(940px, calc(100vw - 28px));
+  max-height: min(860px, calc(100vh - 28px));
   border: 1px solid var(--line);
   background: var(--paper);
   color: var(--ink);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  overflow: auto;
 }
 
 dialog::backdrop {
@@ -941,6 +943,88 @@ dialog::backdrop {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
   letter-spacing: 0;
+}
+
+.form-list-section {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  padding: 12px;
+  background: rgba(255, 252, 240, 0.28);
+}
+
+.form-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.form-list-head h3 {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+}
+
+.form-list-head button,
+.remove-row {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  min-height: 34px;
+  padding: 4px 10px;
+  letter-spacing: 0.12em;
+}
+
+.form-list {
+  display: grid;
+  gap: 9px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.5fr) minmax(98px, 0.72fr) minmax(98px, 0.72fr) minmax(120px, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  padding: 10px;
+  border-top: 1px dashed var(--line);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.countdown-row {
+  grid-template-columns: minmax(180px, 1.5fr) minmax(140px, 0.9fr) minmax(130px, 0.7fr) auto;
+}
+
+.note-row {
+  grid-template-columns: minmax(160px, 0.9fr) minmax(240px, 1.8fr) auto;
+}
+
+.form-row label {
+  min-width: 0;
+}
+
+.form-row input,
+.form-row textarea {
+  width: 100%;
+}
+
+.form-row textarea {
+  min-height: 42px;
+}
+
+.wide-field {
+  min-width: 0;
+}
+
+.repeat-field {
+  min-height: 36px;
+  display: grid;
+  align-items: center;
+}
+
+.remove-row {
+  color: var(--stamp);
 }
 
 .config-panel input,
@@ -1401,8 +1485,15 @@ body[data-style="terminal"] .flip-half {
   .page-picker,
   .style-grid,
   .identity-grid,
-  .config-grid {
+  .config-grid,
+  .form-row,
+  .countdown-row,
+  .note-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .remove-row {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1420,6 +1511,9 @@ body[data-style="terminal"] .flip-half {
   .style-grid,
   .identity-grid,
   .config-grid,
+  .form-row,
+  .countdown-row,
+  .note-row,
   .welcome-actions {
     grid-template-columns: 1fr;
   }

@@ -217,21 +217,30 @@
         </label>
       </div>
       <label>
-        外部資料 JSON URL
-        <input id="dataUrlInput" type="url" placeholder="https://example.com/dashboard.json">
+        進階：外部資料網址（可選）
+        <input id="dataUrlInput" type="url" placeholder="https://example.com/dashboard-data">
       </label>
-      <label>
-        行事曆 JSON
-        <textarea id="eventsInput" spellcheck="false"></textarea>
-      </label>
-      <label>
-        倒數日 JSON
-        <textarea id="countdownsInput" spellcheck="false"></textarea>
-      </label>
-      <label>
-        焦點 JSON
-        <textarea id="notesInput" spellcheck="false"></textarea>
-      </label>
+      <section class="form-list-section">
+        <div class="form-list-head">
+          <h3>行事曆</h3>
+          <button id="addEventButton" type="button">新增行程</button>
+        </div>
+        <div class="form-list" id="eventsEditor"></div>
+      </section>
+      <section class="form-list-section">
+        <div class="form-list-head">
+          <h3>倒數日</h3>
+          <button id="addCountdownButton" type="button">新增日期</button>
+        </div>
+        <div class="form-list" id="countdownsEditor"></div>
+      </section>
+      <section class="form-list-section">
+        <div class="form-list-head">
+          <h3>焦點提醒</h3>
+          <button id="addNoteButton" type="button">新增提醒</button>
+        </div>
+        <div class="form-list" id="notesEditor"></div>
+      </section>
       <div class="config-grid">
         <label class="checkbox-label">
           <input id="battleEnabledInput" type="checkbox">
