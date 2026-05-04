@@ -1,4 +1,4 @@
-const CACHE_NAME = "craig-paper-dashboard-v7";
+const CACHE_NAME = "craig-paper-dashboard-v8";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,7 +9,11 @@ const ASSETS = [
   "./fighter-energy.png",
   "./fighter-arcade.png",
   "./fighter-armor.png",
-  "./fighter-mystic.png"
+  "./fighter-mystic.png",
+  "./fighter-energy.gif",
+  "./fighter-arcade.gif",
+  "./fighter-armor.gif",
+  "./fighter-mystic.gif"
 ];
 
 self.addEventListener("install", (event) => {

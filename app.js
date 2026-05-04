@@ -147,6 +147,7 @@ let activeIndex = 0;
 let panelStartedAt = Date.now();
 let weatherTimer = null;
 let burnTimer = null;
+let weatherRequestId = 0;
 
 function $(selector) {
   return document.querySelector(selector);
@@ -461,7 +462,6 @@ function applyProfile() {
   renderNotes();
   renderArena();
   loadWeather();
-  loadExternalProfileData();
   saveProfiles();
 }
 
@@ -473,29 +473,6 @@ function renderTabs() {
   $all(".tab").forEach((tab) => {
     tab.addEventListener("click", () => setPanel(activeTabs.indexOf(tab.dataset.tab)));
   });
-}
-
-async function loadExternalProfileData() {
-  const url = (activeProfile.dataUrl || "").trim();
-  if (!url) return;
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`data ${res.status}`);
-    const data = await res.json();
-    if (Array.isArray(data.events)) activeProfile.events = data.events;
-    if (Array.isArray(data.countdowns)) activeProfile.countdowns = data.countdowns;
-    if (Array.isArray(data.notes)) activeProfile.notes = data.notes;
-    if (data.location && typeof data.location === "object") {
-      activeProfile.location = { ...activeProfile.location, ...data.location };
-    }
-    updateActiveProfile();
-    renderCalendar();
-    renderCountdowns();
-    renderNotes();
-    loadWeather();
-  } catch (error) {
-    console.warn("Unable to load external dashboard data", error);
-  }
 }
 
 function renderArena() {
@@ -519,10 +496,22 @@ function renderArena() {
   arena.innerHTML = Array.from({ length: count }, (_, index) => {
     const side = index % 4;
     const delay = (index * -1.7).toFixed(1);
+    const actionDelay = (index * -0.32).toFixed(2);
     const fighterTheme = theme === "mixed" ? pool[index % pool.length] : theme;
     const label = labels[fighterTheme]?.[index % 8] || "戰";
-    return `<span class="fighter fighter-${side} fighter-${fighterTheme}" style="--delay:${delay}s; --slot:${index};">
-      <i>${label}</i>
+    return `<span class="fighter fighter-${side} fighter-${fighterTheme}" style="--delay:${delay}s; --action-delay:${actionDelay}s; --slot:${index};">
+      <span class="fighter-sprite" aria-hidden="true">
+        <span class="fighter-shadow"></span>
+        <span class="fighter-aura"></span>
+        <span class="fighter-leg leg-back"></span>
+        <span class="fighter-leg leg-front"></span>
+        <span class="fighter-body"></span>
+        <span class="fighter-head"></span>
+        <span class="fighter-arm arm-back"></span>
+        <span class="fighter-arm arm-front"></span>
+        <span class="fighter-fx"></span>
+      </span>
+      <span class="fighter-label">${label}</span>
     </span>`;
   }).join("");
 }
@@ -566,8 +555,10 @@ function getPosition() {
 
 async function loadWeather() {
   if (!activeProfile) return;
+  const requestId = ++weatherRequestId;
   try {
     const pos = await getPosition();
+    if (requestId !== weatherRequestId) return;
     const params = new URLSearchParams({
       latitude: pos.latitude,
       longitude: pos.longitude,
@@ -577,8 +568,10 @@ async function loadWeather() {
       timezone: "Asia/Taipei"
     });
     const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+    if (requestId !== weatherRequestId) return;
     if (!res.ok) throw new Error(`weather ${res.status}`);
     const data = await res.json();
+    if (requestId !== weatherRequestId) return;
     const now = new Date();
     const current = data.current || {};
     const code = Number(current.weather_code || 0);
