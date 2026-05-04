@@ -25,8 +25,8 @@
       <div class="welcome-shell">
         <div class="welcome-copy">
           <p class="eyebrow">PERSONAL DASHBOARD</p>
-          <h1>選擇設定檔、頁面與風格</h1>
-          <p>這個 Dashboard 可以給不同使用者、不同裝置和不同場景使用。每個設定檔會保存自己的頁面、行程、倒數日與視覺風格。</p>
+          <h1>我是誰，我想看什麼</h1>
+          <p>這個 Dashboard 會先記住使用者是誰，再依照設定檔呈現頁面、行程、倒數日、焦點與視覺風格。</p>
         </div>
 
         <div class="welcome-controls">
@@ -36,6 +36,26 @@
               <button class="quiet-button" id="newProfileButton" type="button">新增</button>
             </div>
             <div class="profile-grid" id="profileGrid"></div>
+          </section>
+
+          <section class="welcome-section identity-section">
+            <h2>我是誰</h2>
+            <div class="identity-card" id="identityCard"></div>
+            <div class="identity-grid">
+              <label>
+                顯示名稱
+                <input id="welcomeNameInput" type="text" autocomplete="name">
+              </label>
+              <label>
+                Dashboard 稱呼
+                <input id="welcomeCallNameInput" type="text" autocomplete="nickname">
+              </label>
+              <label>
+                一句自我描述
+                <input id="welcomeIdentityInput" type="text">
+              </label>
+              <button class="secondary-button" id="saveIdentityButton" type="button">記住我是誰</button>
+            </div>
           </section>
 
           <section class="welcome-section">
@@ -58,6 +78,8 @@
 
     <section id="stage">
       <div id="device">
+        <div class="burn-guard" id="burnGuard" aria-hidden="true"></div>
+        <div class="arena-layer" id="arenaLayer" aria-hidden="true"></div>
         <header class="header">
           <div class="date-block">
             <div class="date-line1" id="eraLine">A.D. 2026 · MAY</div>
@@ -161,6 +183,44 @@
         <button type="submit" aria-label="close">×</button>
       </div>
       <label>
+        顯示名稱
+        <input id="profileNameInput" type="text">
+      </label>
+      <label>
+        Dashboard 稱呼
+        <input id="profileCallNameInput" type="text">
+      </label>
+      <label>
+        我是誰／一句描述
+        <input id="profileIdentityInput" type="text">
+      </label>
+      <label>
+        角色／說明
+        <input id="profileRoleInput" type="text">
+      </label>
+      <div class="config-grid">
+        <label>
+          地點名稱
+          <input id="locationLabelInput" type="text">
+        </label>
+        <label>
+          緯度
+          <input id="latitudeInput" type="number" step="0.0001">
+        </label>
+        <label>
+          經度
+          <input id="longitudeInput" type="number" step="0.0001">
+        </label>
+        <label class="checkbox-label">
+          <input id="useDeviceLocationInput" type="checkbox">
+          使用裝置定位
+        </label>
+      </div>
+      <label>
+        外部資料 JSON URL
+        <input id="dataUrlInput" type="url" placeholder="https://example.com/dashboard.json">
+      </label>
+      <label>
         行事曆 JSON
         <textarea id="eventsInput" spellcheck="false"></textarea>
       </label>
@@ -172,14 +232,26 @@
         焦點 JSON
         <textarea id="notesInput" spellcheck="false"></textarea>
       </label>
-      <label>
-        設定檔名稱
-        <input id="profileNameInput" type="text">
-      </label>
-      <label>
-        角色／說明
-        <input id="profileRoleInput" type="text">
-      </label>
+      <div class="config-grid">
+        <label class="checkbox-label">
+          <input id="battleEnabledInput" type="checkbox">
+          啟用角色大亂鬥
+        </label>
+        <label>
+          角色數量
+          <input id="battleCountInput" type="number" min="2" max="8" step="1">
+        </label>
+        <label>
+          角色風格
+          <select id="battleThemeInput">
+            <option value="mixed">混合角色</option>
+            <option value="arcade">街機格鬥</option>
+            <option value="energy">氣功武者</option>
+            <option value="armor">裝甲英雄</option>
+            <option value="mystic">能量法師</option>
+          </select>
+        </label>
+      </div>
       <div class="config-actions">
         <button id="resetConfig" type="button">還原預設</button>
         <button id="saveConfig" value="default">儲存</button>

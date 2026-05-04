@@ -29,10 +29,14 @@ const DEFAULT_PROFILES = [
   {
     id: "craig",
     name: "Craig",
+    callName: "Craig",
+    identity: "正在建立個人桌面系統",
     role: "個人桌面 · 待補完整資料",
     style: "paper",
     enabledTabs: ["weather", "calendar", "countdown", "notes"],
     location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: true },
+    dataUrl: "",
+    battle: { enabled: false, count: 3, theme: "mixed" },
     events: [
       { title: "晨間整理", start: "08:40", end: "09:10", where: "Craig Desk" },
       { title: "論文與寫作", start: "10:00", end: "12:00", where: "Secondbrain" },
@@ -54,10 +58,14 @@ const DEFAULT_PROFILES = [
   {
     id: "guest",
     name: "Guest",
+    callName: "Guest",
+    identity: "共用展示使用者",
     role: "共用展示 · 可複製成同事設定檔",
     style: "ocean",
     enabledTabs: ["weather", "calendar", "notes"],
     location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: false },
+    dataUrl: "",
+    battle: { enabled: false, count: 2, theme: "arcade" },
     events: [
       { title: "團隊晨會", start: "09:30", end: "10:00", where: "Meeting" },
       { title: "專案檢查", start: "14:00", end: "15:00", where: "Workspace" },
@@ -81,6 +89,7 @@ let activeTabs = ["weather", "calendar", "countdown", "notes"];
 let activeIndex = 0;
 let panelStartedAt = Date.now();
 let weatherTimer = null;
+let burnTimer = null;
 
 function $(selector) {
   return document.querySelector(selector);
@@ -109,11 +118,28 @@ function getWeekNumber(date) {
 function readProfiles() {
   try {
     const stored = JSON.parse(localStorage.getItem(STORAGE_PROFILES) || "[]");
-    if (Array.isArray(stored) && stored.length) return stored;
+    if (Array.isArray(stored) && stored.length) return stored.map(normalizeProfile);
   } catch {
     // Fall through to defaults.
   }
-  return clone(DEFAULT_PROFILES);
+  return clone(DEFAULT_PROFILES).map(normalizeProfile);
+}
+
+function normalizeProfile(profile) {
+  const fallback = clone(DEFAULT_PROFILES.find((item) => item.id === profile.id) || DEFAULT_PROFILES[0]);
+  return {
+    ...fallback,
+    ...profile,
+    callName: profile.callName || profile.name || fallback.callName,
+    identity: profile.identity || fallback.identity || "",
+    enabledTabs: Array.isArray(profile.enabledTabs) && profile.enabledTabs.length ? profile.enabledTabs : fallback.enabledTabs,
+    location: { ...fallback.location, ...(profile.location || {}) },
+    dataUrl: profile.dataUrl || "",
+    battle: { ...fallback.battle, ...(profile.battle || {}) },
+    events: Array.isArray(profile.events) ? profile.events : fallback.events,
+    countdowns: Array.isArray(profile.countdowns) ? profile.countdowns : fallback.countdowns,
+    notes: Array.isArray(profile.notes) ? profile.notes : fallback.notes
+  };
 }
 
 function saveProfiles() {
@@ -127,6 +153,10 @@ function getProfile(id = selectedProfileId) {
 
 function getStyle(id) {
   return STYLE_DEFS.find((style) => style.id === id) || STYLE_DEFS[0];
+}
+
+function getCallName() {
+  return activeProfile?.callName || activeProfile?.name || "Guest";
 }
 
 function setScale() {
@@ -163,7 +193,7 @@ function setDigits(kind, value) {
 
 function tick() {
   const now = new Date();
-  $("#eraLine").textContent = `A.D. ${now.getFullYear()} · ${MONTHS[now.getMonth()]}`;
+  $("#eraLine").textContent = `${getCallName()} · A.D. ${now.getFullYear()} · ${MONTHS[now.getMonth()]}`;
   $("#dateNum").innerHTML = `${now.getMonth() + 1}<span class="slash">/</span>${now.getDate()}`;
   $("#weekday").textContent = WEEKDAYS_ZH[now.getDay()];
   $("#weekLine").textContent = `${WEEKDAYS_EN[now.getDay()]} · week ${getWeekNumber(now)}`;
@@ -175,6 +205,15 @@ function tick() {
 }
 
 function renderWelcome() {
+  $("#identityCard").innerHTML = `<div>
+    <span>${activeProfile.name || "未命名"}</span>
+    <strong>${getCallName()}</strong>
+    <p>${activeProfile.identity || activeProfile.role || "請記錄這位使用者是誰。"}</p>
+  </div>`;
+  $("#welcomeNameInput").value = activeProfile.name || "";
+  $("#welcomeCallNameInput").value = activeProfile.callName || activeProfile.name || "";
+  $("#welcomeIdentityInput").value = activeProfile.identity || "";
+
   $("#profileGrid").innerHTML = profiles.map((profile) => {
     const style = getStyle(profile.style);
     const pages = profile.enabledTabs.map((id) => PAGE_DEFS.find((page) => page.id === id)?.short).filter(Boolean).join(" / ");
@@ -244,6 +283,8 @@ function createProfile() {
   const base = clone(activeProfile || DEFAULT_PROFILES[0]);
   base.id = `profile-${Date.now()}`;
   base.name = "新設定檔";
+  base.callName = "新朋友";
+  base.identity = "請記錄這位使用者是誰";
   base.role = "請在 CONFIG 填入使用者資料";
   profiles.push(base);
   selectedProfileId = base.id;
@@ -262,7 +303,7 @@ function updateActiveProfile() {
 
 function applyTheme() {
   document.body.dataset.style = activeProfile.style || "paper";
-  document.title = `${activeProfile.name} Dashboard`;
+  document.title = `${getCallName()} Dashboard`;
 }
 
 function applyProfile() {
@@ -276,7 +317,9 @@ function applyProfile() {
   renderCalendar();
   renderCountdowns();
   renderNotes();
+  renderArena();
   loadWeather();
+  loadExternalProfileData();
   saveProfiles();
 }
 
@@ -288,6 +331,58 @@ function renderTabs() {
   $all(".tab").forEach((tab) => {
     tab.addEventListener("click", () => setPanel(activeTabs.indexOf(tab.dataset.tab)));
   });
+}
+
+async function loadExternalProfileData() {
+  const url = (activeProfile.dataUrl || "").trim();
+  if (!url) return;
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`data ${res.status}`);
+    const data = await res.json();
+    if (Array.isArray(data.events)) activeProfile.events = data.events;
+    if (Array.isArray(data.countdowns)) activeProfile.countdowns = data.countdowns;
+    if (Array.isArray(data.notes)) activeProfile.notes = data.notes;
+    if (data.location && typeof data.location === "object") {
+      activeProfile.location = { ...activeProfile.location, ...data.location };
+    }
+    updateActiveProfile();
+    renderCalendar();
+    renderCountdowns();
+    renderNotes();
+    loadWeather();
+  } catch (error) {
+    console.warn("Unable to load external dashboard data", error);
+  }
+}
+
+function renderArena() {
+  const arena = $("#arenaLayer");
+  const battle = activeProfile.battle || {};
+  const showArena = battle.enabled && ["anime", "cyber", "terminal", "noir"].includes(activeProfile.style);
+  arena.classList.toggle("active", showArena);
+  if (!showArena) {
+    arena.innerHTML = "";
+    return;
+  }
+  const count = Math.max(2, Math.min(8, Number(battle.count) || 3));
+  const theme = battle.theme || "mixed";
+  const pool = ["energy", "arcade", "armor", "mystic"];
+  const labels = {
+    arcade: ["拳", "踢", "閃", "破", "疾", "反", "連", "爆"],
+    energy: ["氣", "波", "光", "瞬", "炎", "雷", "界", "衝"],
+    armor: ["甲", "盾", "砲", "飛", "鋼", "核", "鎖", "推"],
+    mystic: ["星", "月", "咒", "門", "幻", "焰", "晶", "靈"]
+  };
+  arena.innerHTML = Array.from({ length: count }, (_, index) => {
+    const side = index % 4;
+    const delay = (index * -1.7).toFixed(1);
+    const fighterTheme = theme === "mixed" ? pool[index % pool.length] : theme;
+    const label = labels[fighterTheme]?.[index % 8] || "戰";
+    return `<span class="fighter fighter-${side} fighter-${fighterTheme}" style="--delay:${delay}s; --slot:${index};">
+      <i>${label}</i>
+    </span>`;
+  }).join("");
 }
 
 function weatherLabel(code) {
@@ -349,7 +444,7 @@ async function loadWeather() {
     const rain = data.hourly.precipitation_probability[rainIndex] ?? "--";
     $("#weatherCity").textContent = pos.label || activeProfile.location.label || "所在位置";
     $("#weatherCoords").textContent = formatCoords(pos.latitude, pos.longitude);
-    $("#weatherSummary").textContent = `${weatherLabel(code)} · ${activeProfile.name} 的即時資訊`;
+    $("#weatherSummary").textContent = `${weatherLabel(code)} · ${getCallName()} 的即時資訊`;
     $("#weatherTemp").textContent = Math.round(current.temperature_2m ?? 0);
     $("#weatherFeels").textContent = `體感 ${Math.round(current.apparent_temperature ?? current.temperature_2m ?? 0)}°`;
     $("#weatherRain").textContent = `降雨 ${rain}%`;
@@ -414,10 +509,10 @@ function renderCalendar() {
   const mins = Math.max(0, Math.ceil((target - now) / 60000));
   $("#calendarNow").classList.toggle("upcoming", upcoming);
   $("#eventTitle").textContent = current.title;
-  $("#eventTime").textContent = `${current.start} - ${current.end} · ${current.where || activeProfile.name}`;
+  $("#eventTime").textContent = `${current.start} - ${current.end} · ${current.where || getCallName()}`;
   $("#eventMins").textContent = mins;
   $("#eventMinsLabel").textContent = upcoming ? "分後開始" : "分　剩餘";
-  $("#calendarSource").textContent = `${activeProfile.name.toUpperCase()} · ${events.length} EVENTS`;
+  $("#calendarSource").textContent = `${getCallName().toUpperCase()} · ${events.length} EVENTS`;
   $("#calendarList").innerHTML = events.map((event) => (
     `<div class="cal-row">
       <time>${event.start} - ${event.end}</time>
@@ -499,6 +594,23 @@ function renderProgress() {
   $("#progressBar").style.width = `${(elapsed / PANEL_MS) * 100}%`;
 }
 
+function updateBurnInProtection() {
+  const x = Math.round((Math.random() * 14) - 7);
+  const y = Math.round((Math.random() * 10) - 5);
+  const dim = (0.92 + Math.random() * 0.08).toFixed(2);
+  const hue = Math.round((Math.random() * 8) - 4);
+  document.documentElement.style.setProperty("--burn-x", `${x}px`);
+  document.documentElement.style.setProperty("--burn-y", `${y}px`);
+  document.documentElement.style.setProperty("--screen-dim", dim);
+  document.documentElement.style.setProperty("--screen-hue", `${hue}deg`);
+}
+
+function startBurnInProtection() {
+  updateBurnInProtection();
+  if (burnTimer) clearInterval(burnTimer);
+  burnTimer = setInterval(updateBurnInProtection, 35000);
+}
+
 function parseJsonList(selector, fallback) {
   try {
     const parsed = JSON.parse($(selector).value || "[]");
@@ -510,10 +622,20 @@ function parseJsonList(selector, fallback) {
 
 function openConfig() {
   $("#profileNameInput").value = activeProfile.name || "";
+  $("#profileCallNameInput").value = activeProfile.callName || activeProfile.name || "";
+  $("#profileIdentityInput").value = activeProfile.identity || "";
   $("#profileRoleInput").value = activeProfile.role || "";
+  $("#locationLabelInput").value = activeProfile.location?.label || "";
+  $("#latitudeInput").value = activeProfile.location?.latitude ?? "";
+  $("#longitudeInput").value = activeProfile.location?.longitude ?? "";
+  $("#useDeviceLocationInput").checked = Boolean(activeProfile.location?.useDeviceLocation);
+  $("#dataUrlInput").value = activeProfile.dataUrl || "";
   $("#eventsInput").value = JSON.stringify(activeProfile.events || [], null, 2);
   $("#countdownsInput").value = JSON.stringify(activeProfile.countdowns || [], null, 2);
   $("#notesInput").value = JSON.stringify(activeProfile.notes || [], null, 2);
+  $("#battleEnabledInput").checked = Boolean(activeProfile.battle?.enabled);
+  $("#battleCountInput").value = activeProfile.battle?.count || 3;
+  $("#battleThemeInput").value = activeProfile.battle?.theme || "mixed";
   $("#configDialog").showModal();
 }
 
@@ -523,13 +645,35 @@ function setupConfig() {
   $("#newProfileButton").addEventListener("click", createProfile);
   $("#welcomeButton").addEventListener("click", showWelcome);
   $("#enterDashboard").addEventListener("click", hideWelcome);
+  $("#saveIdentityButton").addEventListener("click", () => {
+    activeProfile.name = $("#welcomeNameInput").value.trim() || activeProfile.name;
+    activeProfile.callName = $("#welcomeCallNameInput").value.trim() || activeProfile.callName || activeProfile.name;
+    activeProfile.identity = $("#welcomeIdentityInput").value.trim() || activeProfile.identity || "";
+    updateActiveProfile();
+    applyProfile();
+    renderWelcome();
+  });
 
   $("#saveConfig").addEventListener("click", () => {
     activeProfile.name = $("#profileNameInput").value.trim() || activeProfile.name;
+    activeProfile.callName = $("#profileCallNameInput").value.trim() || activeProfile.callName || activeProfile.name;
+    activeProfile.identity = $("#profileIdentityInput").value.trim() || activeProfile.identity || "";
     activeProfile.role = $("#profileRoleInput").value.trim() || activeProfile.role;
+    activeProfile.location = {
+      label: $("#locationLabelInput").value.trim() || "臺北市",
+      latitude: Number($("#latitudeInput").value) || 25.033,
+      longitude: Number($("#longitudeInput").value) || 121.5654,
+      useDeviceLocation: $("#useDeviceLocationInput").checked
+    };
+    activeProfile.dataUrl = $("#dataUrlInput").value.trim();
     activeProfile.events = parseJsonList("#eventsInput", activeProfile.events || []);
     activeProfile.countdowns = parseJsonList("#countdownsInput", activeProfile.countdowns || []);
     activeProfile.notes = parseJsonList("#notesInput", activeProfile.notes || []);
+    activeProfile.battle = {
+      enabled: $("#battleEnabledInput").checked,
+      count: Math.max(2, Math.min(8, Number($("#battleCountInput").value) || 3)),
+      theme: $("#battleThemeInput").value || "mixed"
+    };
     updateActiveProfile();
     applyProfile();
     renderWelcome();
@@ -537,12 +681,27 @@ function setupConfig() {
 
   $("#resetConfig").addEventListener("click", () => {
     const defaults = clone(DEFAULT_PROFILES.find((profile) => profile.id === activeProfile.id) || DEFAULT_PROFILES[0]);
+    activeProfile.callName = defaults.callName;
+    activeProfile.identity = defaults.identity;
+    activeProfile.location = defaults.location;
+    activeProfile.dataUrl = defaults.dataUrl;
+    activeProfile.battle = defaults.battle;
     activeProfile.events = defaults.events;
     activeProfile.countdowns = defaults.countdowns;
     activeProfile.notes = defaults.notes;
+    $("#profileCallNameInput").value = activeProfile.callName || activeProfile.name || "";
+    $("#profileIdentityInput").value = activeProfile.identity || "";
+    $("#locationLabelInput").value = activeProfile.location?.label || "";
+    $("#latitudeInput").value = activeProfile.location?.latitude ?? "";
+    $("#longitudeInput").value = activeProfile.location?.longitude ?? "";
+    $("#useDeviceLocationInput").checked = Boolean(activeProfile.location?.useDeviceLocation);
+    $("#dataUrlInput").value = activeProfile.dataUrl || "";
     $("#eventsInput").value = JSON.stringify(activeProfile.events, null, 2);
     $("#countdownsInput").value = JSON.stringify(activeProfile.countdowns, null, 2);
     $("#notesInput").value = JSON.stringify(activeProfile.notes, null, 2);
+    $("#battleEnabledInput").checked = Boolean(activeProfile.battle?.enabled);
+    $("#battleCountInput").value = activeProfile.battle?.count || 3;
+    $("#battleThemeInput").value = activeProfile.battle?.theme || "mixed";
     updateActiveProfile();
     applyProfile();
   });
@@ -567,6 +726,7 @@ function init() {
   tick();
   if (weatherTimer) clearInterval(weatherTimer);
   weatherTimer = setInterval(loadWeather, 10 * 60 * 1000);
+  startBurnInProtection();
   setInterval(tick, 1000);
   window.addEventListener("resize", setScale);
   registerServiceWorker();
