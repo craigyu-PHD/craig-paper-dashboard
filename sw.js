@@ -1,4 +1,4 @@
-const CACHE_NAME = "craig-paper-dashboard-v8";
+const CACHE_NAME = "craig-paper-dashboard-v9";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,10 +6,6 @@ const ASSETS = [
   "./app.js",
   "./manifest.webmanifest",
   "./icon.svg",
-  "./fighter-energy.png",
-  "./fighter-arcade.png",
-  "./fighter-armor.png",
-  "./fighter-mystic.png",
   "./fighter-energy.gif",
   "./fighter-arcade.gif",
   "./fighter-armor.gif",

@@ -12,16 +12,16 @@ const PAGE_DEFS = [
   { id: "notes", label: "焦　點", short: "焦點", desc: "今日提醒、工作重點與個人提示" }
 ];
 
-const SERIF_STACK = `"Noto Serif TC", "Source Serif 4", Georgia, serif`;
-const SANS_STACK = `"Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, sans-serif`;
-const GEOMETRIC_STACK = `"Space Grotesk", "Noto Sans TC", system-ui, sans-serif`;
-const MONO_STACK = `"JetBrains Mono", "Noto Sans TC", ui-monospace, SFMono-Regular, Menlo, monospace`;
-const PIXEL_STACK = `"Press Start 2P", "Noto Sans TC", ui-monospace, monospace`;
-const DISPLAY_STACK = `"Bebas Neue", "Noto Sans TC", Impact, sans-serif`;
-const COMIC_STACK = `"Bangers", "Noto Sans TC", cursive`;
-const ROUND_STACK = `"Zen Maru Gothic", "Noto Sans TC", system-ui, sans-serif`;
-const LUXURY_STACK = `"Cormorant Garamond", "Noto Serif TC", Georgia, serif`;
-const ORBITRON_STACK = `"Orbitron", "Noto Sans TC", system-ui, sans-serif`;
+const SERIF_STACK = `"Songti TC", "Noto Serif TC", Georgia, serif`;
+const SANS_STACK = `-apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif`;
+const GEOMETRIC_STACK = `"Avenir Next", "Futura", "PingFang TC", system-ui, sans-serif`;
+const MONO_STACK = `"SFMono-Regular", "Cascadia Mono", "Menlo", "Consolas", monospace`;
+const PIXEL_STACK = `"Courier New", "SFMono-Regular", monospace`;
+const DISPLAY_STACK = `"Arial Black", Impact, "PingFang TC", sans-serif`;
+const COMIC_STACK = `"Marker Felt", "Comic Sans MS", "PingFang TC", cursive`;
+const ROUND_STACK = `"PingFang TC", "Hiragino Maru Gothic ProN", "Microsoft JhengHei", system-ui, sans-serif`;
+const LUXURY_STACK = `"Didot", "Bodoni 72", "Songti TC", Georgia, serif`;
+const ORBITRON_STACK = `"Avenir Next Condensed", "DIN Condensed", "Arial Narrow", system-ui, sans-serif`;
 
 const STYLE_DEFS = [
   { id: "paper", name: "Paper Classic", zh: "紙感經典", desc: "米色紙張、襯線字、翻頁鐘", sample: "5/4", layout: "classic", family: "paper", vars: { "--outer": "#15110c", "--paper": "#f1ebdc", "--paper-deep": "#e8e0cc", "--ink": "#2a2520", "--ink-soft": "#6b6358", "--ink-faint": "#9a9080", "--line": "#cdc3ae", "--stamp": "#a0382e", "--green": "#2d5a3d", "--glow": "rgba(255, 248, 225, 0.08)", "--font-body": SERIF_STACK, "--font-display": SERIF_STACK, "--font-clock": SERIF_STACK, "--device-radius": "0px" } },
@@ -148,6 +148,8 @@ let panelStartedAt = Date.now();
 let weatherTimer = null;
 let burnTimer = null;
 let weatherRequestId = 0;
+let lastDateKey = "";
+let lastCalendarMinuteKey = "";
 
 function $(selector) {
   return document.querySelector(selector);
@@ -268,14 +270,22 @@ function setDigits(kind, value) {
 
 function tick() {
   const now = new Date();
-  $("#eraLine").textContent = `${getCallName()} · A.D. ${now.getFullYear()} · ${MONTHS[now.getMonth()]}`;
-  $("#dateNum").innerHTML = `${now.getMonth() + 1}<span class="slash">/</span>${now.getDate()}`;
-  $("#weekday").textContent = WEEKDAYS_ZH[now.getDay()];
-  $("#weekLine").textContent = `${WEEKDAYS_EN[now.getDay()]} · week ${getWeekNumber(now)}`;
+  const dateKey = `${getCallName()}-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getDay()}`;
+  if (dateKey !== lastDateKey) {
+    $("#eraLine").textContent = `${getCallName()} · A.D. ${now.getFullYear()} · ${MONTHS[now.getMonth()]}`;
+    $("#dateNum").innerHTML = `${now.getMonth() + 1}<span class="slash">/</span>${now.getDate()}`;
+    $("#weekday").textContent = WEEKDAYS_ZH[now.getDay()];
+    $("#weekLine").textContent = `${WEEKDAYS_EN[now.getDay()]} · week ${getWeekNumber(now)}`;
+    lastDateKey = dateKey;
+  }
   setDigits("hh", pad(now.getHours()));
   setDigits("mm", pad(now.getMinutes()));
   setDigits("ss", pad(now.getSeconds()));
-  renderCalendar();
+  const calendarMinuteKey = `${activeProfile?.id || ""}-${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}`;
+  if (calendarMinuteKey !== lastCalendarMinuteKey) {
+    renderCalendar();
+    lastCalendarMinuteKey = calendarMinuteKey;
+  }
   renderProgress();
 }
 
@@ -457,6 +467,8 @@ function applyProfile() {
   applyTheme();
   renderTabs();
   setPanel(activeIndex);
+  lastDateKey = "";
+  lastCalendarMinuteKey = "";
   renderCalendar();
   renderCountdowns();
   renderNotes();
@@ -499,18 +511,9 @@ function renderArena() {
     const actionDelay = (index * -0.32).toFixed(2);
     const fighterTheme = theme === "mixed" ? pool[index % pool.length] : theme;
     const label = labels[fighterTheme]?.[index % 8] || "戰";
-    return `<span class="fighter fighter-${side} fighter-${fighterTheme}" style="--delay:${delay}s; --action-delay:${actionDelay}s; --slot:${index};">
-      <span class="fighter-sprite" aria-hidden="true">
-        <span class="fighter-shadow"></span>
-        <span class="fighter-aura"></span>
-        <span class="fighter-leg leg-back"></span>
-        <span class="fighter-leg leg-front"></span>
-        <span class="fighter-body"></span>
-        <span class="fighter-head"></span>
-        <span class="fighter-arm arm-back"></span>
-        <span class="fighter-arm arm-front"></span>
-        <span class="fighter-fx"></span>
-      </span>
+    return `<span class="fighter fighter-${side} fighter-${fighterTheme}" style="--delay:${delay}s; --action-delay:${actionDelay}s; --slot:${index};" aria-hidden="true">
+      <img class="fighter-gif" src="fighter-${fighterTheme}.gif" alt="" decoding="async">
+      <span class="fighter-burst"></span>
       <span class="fighter-label">${label}</span>
     </span>`;
   }).join("");
