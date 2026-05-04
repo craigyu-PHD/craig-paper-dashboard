@@ -10,6 +10,24 @@
   --stamp-deep: #7a2820;
   --green: #2d5a3d;
   --glow: rgba(255, 248, 225, 0.08);
+  --font-body: "Noto Serif TC", "Source Serif 4", Georgia, serif;
+  --font-display: "Noto Serif TC", "Source Serif 4", Georgia, serif;
+  --font-clock: "Source Serif 4", "Noto Serif TC", Georgia, serif;
+  --device-radius: 0px;
+  --device-bg:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 250, 235, 0.52), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(160, 56, 46, 0.055), transparent 60%),
+    var(--paper);
+  --wrap-bg:
+    radial-gradient(ellipse at center, var(--glow), transparent 42%),
+    var(--outer);
+  --texture-bg:
+    linear-gradient(rgba(42, 37, 32, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42, 37, 32, 0.018) 1px, transparent 1px);
+  --panel-fill: var(--paper-deep);
+  --flip-ink: #f5efde;
+  --flip-top: linear-gradient(180deg, #2f2920 0%, #221d18 100%);
+  --flip-bottom: linear-gradient(180deg, #1d1814 0%, #2a2420 100%);
   --scale: 1;
   --burn-x: 0px;
   --burn-y: 0px;
@@ -144,7 +162,7 @@ body {
   overflow: hidden;
   background: var(--outer);
   color: var(--ink);
-  font-family: "Noto Serif TC", "Source Serif 4", Georgia, serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -167,9 +185,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(ellipse at center, var(--glow), transparent 42%),
-    var(--outer);
+  background: var(--wrap-bg);
 }
 
 #stage {
@@ -187,10 +203,8 @@ select {
   height: 414px;
   overflow: hidden;
   color: var(--ink);
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(255, 250, 235, 0.52), transparent 60%),
-    radial-gradient(ellipse at 80% 90%, rgba(160, 56, 46, 0.055), transparent 60%),
-    var(--paper);
+  background: var(--device-bg);
+  border-radius: var(--device-radius);
   box-shadow:
     0 28px 80px rgba(0, 0, 0, 0.52),
     0 8px 24px rgba(0, 0, 0, 0.35),
@@ -222,9 +236,7 @@ select {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgba(42, 37, 32, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(42, 37, 32, 0.018) 1px, transparent 1px);
+  background-image: var(--texture-bg);
   background-size: 18px 18px, 18px 18px;
   opacity: 0.32;
   z-index: 1;
@@ -255,7 +267,7 @@ select {
 .date-line3,
 .panel-title-en,
 .weather-issued {
-  font-family: "Source Serif 4", Georgia, serif;
+  font-family: var(--font-display);
   font-style: italic;
   color: var(--ink-faint);
   text-transform: uppercase;
@@ -330,9 +342,9 @@ select {
   right: 0;
   height: 36px;
   overflow: hidden;
-  color: #f5efde;
-  background: linear-gradient(180deg, #2f2920 0%, #221d18 100%);
-  font-family: "Source Serif 4", "Noto Serif TC", serif;
+  color: var(--flip-ink);
+  background: var(--flip-top);
+  font-family: var(--font-clock);
   font-size: 68px;
   font-weight: 700;
   line-height: 72px;
@@ -355,7 +367,7 @@ select {
 .flip-half.bottom {
   bottom: 0;
   border-radius: 0 0 4px 4px;
-  background: linear-gradient(180deg, #1d1814 0%, #2a2420 100%);
+  background: var(--flip-bottom);
 }
 
 .flip-half span {
@@ -380,7 +392,7 @@ select {
   display: flex;
   align-items: center;
   color: var(--ink);
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-clock);
   font-size: 44px;
   font-weight: 600;
   opacity: 0.86;
@@ -477,7 +489,7 @@ select {
 
 .weather-loc-en {
   color: var(--ink-faint);
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-size: 10px;
   letter-spacing: 0.22em;
@@ -501,7 +513,7 @@ select {
 }
 
 .weather-hero-temp {
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-clock);
   font-size: 48px;
   font-weight: 700;
   line-height: 1;
@@ -596,7 +608,7 @@ select {
 
 .weather-block .temp {
   margin-top: 5px;
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-clock);
   font-size: 17px;
   font-weight: 700;
 }
@@ -636,7 +648,7 @@ select {
 .note-card span {
   display: block;
   color: var(--stamp);
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-size: 12px;
   font-style: italic;
   letter-spacing: 0.24em;
@@ -670,7 +682,7 @@ select {
   margin-bottom: 12px;
   padding: 14px 20px;
   border: 1px solid var(--line);
-  background: var(--paper-deep);
+  background: var(--panel-fill);
 }
 
 .cal-now::before {
@@ -679,7 +691,7 @@ select {
   top: -10px;
   left: 20px;
   padding: 0 8px;
-  background: var(--paper-deep);
+  background: var(--panel-fill);
   color: var(--green);
   font-size: 10px;
   letter-spacing: 0.3em;
@@ -699,7 +711,7 @@ select {
 .cal-now-time {
   margin-top: 4px;
   color: var(--ink-soft);
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-size: 12px;
   font-style: italic;
   letter-spacing: 0.08em;
@@ -713,7 +725,7 @@ select {
 
 .cal-mins strong {
   display: block;
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-clock);
   font-size: 34px;
   line-height: 1;
 }
@@ -743,7 +755,7 @@ select {
 }
 
 .cal-row time {
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-style: italic;
   color: var(--ink-soft);
 }
@@ -788,14 +800,14 @@ select {
 }
 
 .stamp strong {
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-clock);
   font-size: 21px;
   line-height: 1;
 }
 
 .stamp span {
   margin-top: 4px;
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -810,7 +822,7 @@ select {
 .count-meta {
   margin-top: 4px;
   color: var(--ink-soft);
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-size: 11px;
   font-style: italic;
   letter-spacing: 0.08em;
@@ -852,7 +864,7 @@ select {
 .config-button {
   margin-left: 16px;
   margin-right: 0;
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-style: italic;
   letter-spacing: 0.18em;
 }
@@ -866,7 +878,7 @@ select {
   align-items: center;
   gap: 14px;
   color: var(--ink-faint);
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-size: 11px;
   letter-spacing: 0.16em;
@@ -913,7 +925,7 @@ dialog::backdrop {
 
 .config-head h2 {
   margin: 0;
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-size: 18px;
   letter-spacing: 0.12em;
 }
@@ -1091,7 +1103,7 @@ dialog::backdrop {
 .welcome-copy .eyebrow {
   margin: 0 0 14px;
   color: rgba(245, 239, 222, 0.64);
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-size: 12px;
   font-style: italic;
   letter-spacing: 0.28em;
@@ -1136,7 +1148,7 @@ dialog::backdrop {
 .identity-card span {
   display: block;
   color: var(--ink-faint);
-  font-family: "Source Serif 4", serif;
+  font-family: var(--font-display);
   font-size: 11px;
   font-style: italic;
   letter-spacing: 0.22em;
@@ -1301,13 +1313,13 @@ dialog::backdrop {
 
 .style-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 12px;
 }
 
 .layout-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 
@@ -1345,8 +1357,25 @@ dialog::backdrop {
 }
 
 .style-card {
-  min-height: 126px;
+  position: relative;
+  min-height: 148px;
   padding: 12px;
+  overflow: hidden;
+  color: var(--sample-color);
+  background:
+    linear-gradient(135deg, var(--sample-bg) 0 62%, var(--sample-deep) 62% 78%, var(--sample-accent) 78% 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.style-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 10px 10px auto;
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--sample-accent);
+  opacity: 0.36;
+  transform: rotate(8deg);
 }
 
 .style-sample {
@@ -1355,10 +1384,36 @@ dialog::backdrop {
   justify-content: center;
   height: 44px;
   margin-bottom: 12px;
-  border: 1px solid currentColor;
-  font-family: "Source Serif 4", serif;
+  border: 1px solid var(--sample-accent);
+  background: rgba(255, 255, 255, 0.16);
+  font-family: var(--sample-font, var(--font-display));
   font-size: 22px;
   font-weight: 700;
+  letter-spacing: 0;
+}
+
+.style-card strong,
+.style-card small,
+.style-card em {
+  position: relative;
+  z-index: 1;
+}
+
+.style-card small {
+  color: inherit;
+  opacity: 0.72;
+}
+
+.style-card em {
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  opacity: 0.82;
 }
 
 .style-swatch-paper { background: #f1ebdc; color: #2a2520; }
@@ -1526,22 +1581,347 @@ body[data-layout="calm"] .arena-layer {
   opacity: 0.62;
 }
 
-body[data-style="cyber"] #device,
-body[data-style="terminal"] #device,
-body[data-style="noir"] #device {
+body[data-layout="bento"] .content {
+  top: 118px;
+  left: 22px;
+  right: 22px;
+  bottom: 44px;
+}
+
+body[data-layout="bento"] .weather-hero,
+body[data-layout="bento"] .cal-now,
+body[data-layout="bento"] .count-item,
+body[data-layout="bento"] .note-card,
+body[data-layout="bento"] .weather-block {
+  border: 1px solid var(--line);
+  background: var(--panel-fill);
+  border-radius: min(16px, calc(var(--device-radius) + 6px));
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+body[data-layout="bento"] .weather-hero {
+  padding: 10px 14px;
+}
+
+body[data-layout="bento"] .weather-block {
+  min-height: 62px;
+  padding: 9px 12px;
+  border-left: 1px solid var(--line);
+}
+
+body[data-layout="bento"] .note-board,
+body[data-layout="bento"] .count-list {
+  gap: 10px;
+  padding-top: 8px;
+}
+
+body[data-layout="bento"] .note-card {
+  min-height: 142px;
+  padding: 12px;
+}
+
+body[data-layout="command"] #device {
+  border: 2px solid var(--line);
+}
+
+body[data-layout="command"] .header {
+  height: 112px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent);
+  border-bottom: 1px solid var(--line);
+}
+
+body[data-layout="command"] .hairline {
+  display: none;
+}
+
+body[data-layout="command"] .content {
+  top: 122px;
+  left: 20px;
+  right: 20px;
+  bottom: 46px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+body[data-layout="command"] .panel-head {
+  margin: -10px -10px 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+body[data-layout="command"] .footer {
+  left: 20px;
+  right: 20px;
+  bottom: 10px;
+}
+
+body[data-layout="magazine"] .content {
+  top: 116px;
+  left: 34px;
+  right: 34px;
+}
+
+body[data-layout="magazine"] .panel-head {
+  align-items: end;
+  border-bottom: 3px double var(--line);
+  padding-bottom: 6px;
+}
+
+body[data-layout="magazine"] .panel-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 0.95;
+  letter-spacing: 0.16em;
+}
+
+body[data-layout="magazine"] .weather-hero,
+body[data-layout="magazine"] .cal-now {
+  border-width: 2px 0 1px;
+}
+
+body[data-layout="poster"] .header {
+  height: 154px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px 0;
+  text-align: center;
+}
+
+body[data-layout="poster"] .date-block {
+  flex: none;
+  align-items: center;
+}
+
+body[data-layout="poster"] .date-line2 {
+  justify-content: center;
+}
+
+body[data-layout="poster"] .clock {
+  padding-top: 6px;
+}
+
+body[data-layout="poster"] .hairline {
+  top: 156px;
+  left: 70px;
+  right: 70px;
+}
+
+body[data-layout="poster"] .content {
+  top: 166px;
+  left: 56px;
+  right: 56px;
+  bottom: 42px;
+}
+
+body[data-layout="poster"] .panel-head {
+  justify-content: center;
+  text-align: center;
+}
+
+body[data-layout="arcade"] #device {
+  border: 4px solid var(--line);
+  image-rendering: pixelated;
+}
+
+body[data-layout="arcade"] .header {
+  height: 118px;
+  padding: 14px 18px 0;
+}
+
+body[data-layout="arcade"] .hairline {
+  top: 118px;
+  left: 18px;
+  right: 18px;
+  height: 4px;
+}
+
+body[data-layout="arcade"] .content {
+  top: 130px;
+  left: 18px;
+  right: 18px;
+  bottom: 48px;
+}
+
+body[data-layout="arcade"] .flip-half,
+body[data-layout="arcade"] .stamp,
+body[data-layout="arcade"] .cal-now,
+body[data-layout="arcade"] .note-card,
+body[data-layout="arcade"] .count-item {
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+body[data-layout="arcade"] .tab.active,
+body[data-layout="arcade"] .config-button:hover {
+  color: var(--stamp);
+  text-shadow: 0 0 10px var(--glow);
+}
+
+body[data-layout="split"] .header {
+  right: 390px;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px 22px;
+  border-right: 1px solid var(--line);
+}
+
+body[data-layout="split"] .date-block {
+  flex: none;
+}
+
+body[data-layout="split"] .clock {
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+body[data-layout="split"] .hairline {
+  display: none;
+}
+
+body[data-layout="split"] .content {
+  top: 28px;
+  left: 370px;
+  right: 22px;
+  bottom: 50px;
+}
+
+body[data-layout="split"] .footer {
+  left: 370px;
+  right: 22px;
+}
+
+body[data-layout="split"] .weather-blocks,
+body[data-layout="split"] .count-list,
+body[data-layout="split"] .note-board {
+  grid-template-columns: 1fr;
+}
+
+body[data-layout="split"] .note-card {
+  min-height: auto;
+}
+
+body[data-style-family="neon"] #device,
+body[data-style-family="terminal"] #device,
+body[data-style-family="luxury"] #device,
+body[data-style-family="cockpit"] #device,
+body[data-style-family="space"] #device,
+body[data-style-family="blueprint"] #device,
+body[data-style-family="dark"] #device {
   box-shadow:
     0 28px 80px rgba(0, 0, 0, 0.72),
     0 0 42px var(--glow),
     inset 0 0 0 1px var(--line);
 }
 
-body[data-style="anime"] #device {
-  border-radius: 8px;
+body[data-style-family="glass"] #device {
+  background:
+    radial-gradient(circle at 18% 12%, var(--glow), transparent 34%),
+    radial-gradient(circle at 82% 80%, rgba(255, 255, 255, 0.15), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent),
+    var(--paper);
+  backdrop-filter: blur(10px);
 }
 
-body[data-style="braun"] .flip-half,
-body[data-style="terminal"] .flip-half {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+body[data-style-family="soft"] #device,
+body[data-style-family="nature"] #device,
+body[data-style-family="warm"] #device,
+body[data-style-family="nordic"] #device {
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.34),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+body[data-style-family="pixel"] .panel-title,
+body[data-style-family="pixel"] .tab,
+body[data-style-family="pixel"] .config-button,
+body[data-style-family="platform"] .panel-title,
+body[data-style-family="platform"] .tab,
+body[data-style-family="platform"] .config-button {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+body[data-style-family="pixel"] .flip-half {
+  font-size: 38px;
+  text-shadow: 3px 3px 0 #000;
+}
+
+body[data-style-family="pixel"] .flip-card.sec .flip-half {
+  font-size: 25px;
+}
+
+body[data-style-family="pixel"] .weather-hero-temp {
+  font-size: 32px;
+}
+
+body[data-style-family="terminal"] #device::after,
+body[data-style-family="cockpit"] #device::after,
+body[data-style-family="blueprint"] #device::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(rgba(255, 255, 255, 0.04) 50%, transparent 50%);
+  background-size: 100% 4px;
+  mix-blend-mode: overlay;
+  opacity: 0.42;
+}
+
+body[data-style-family="terminal"] .flip-half,
+body[data-style-family="cockpit"] .flip-half,
+body[data-style-family="space"] .flip-half,
+body[data-style-family="blueprint"] .flip-half,
+body[data-style-family="neon"] .flip-half {
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--paper-deep), var(--paper));
+  border: 1px solid var(--line);
+  text-shadow: 0 0 12px var(--glow);
+}
+
+body[data-style-family="brutal"] #device {
+  border: 5px solid var(--ink);
+  box-shadow: 14px 14px 0 var(--stamp), 0 28px 80px rgba(0, 0, 0, 0.45);
+}
+
+body[data-style-family="brutal"] .panel-title,
+body[data-style-family="sport"] .panel-title {
+  font-size: 24px;
+  letter-spacing: 0.06em;
+}
+
+body[data-style-family="manga"] .panel-title {
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  text-shadow: 2px 2px 0 var(--paper);
+}
+
+body[data-style-family="manga"] .note-card,
+body[data-style-family="manga"] .cal-now,
+body[data-style-family="manga"] .count-item {
+  border: 3px solid var(--ink);
+}
+
+body[data-style-family="luxury"] .panel-title,
+body[data-style-family="museum"] .panel-title {
+  font-size: 19px;
+  letter-spacing: 0.28em;
+}
+
+body[data-style-family="swiss"] .panel-title,
+body[data-style-family="lab"] .panel-title {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+body[data-style-family="blueprint"] #device::before {
+  background-size: 24px 24px, 24px 24px;
+  opacity: 0.56;
 }
 
 .arena-layer {

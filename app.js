@@ -12,24 +12,63 @@ const PAGE_DEFS = [
   { id: "notes", label: "焦　點", short: "焦點", desc: "今日提醒、工作重點與個人提示" }
 ];
 
+const SERIF_STACK = `"Noto Serif TC", "Source Serif 4", Georgia, serif`;
+const SANS_STACK = `"Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, sans-serif`;
+const GEOMETRIC_STACK = `"Space Grotesk", "Noto Sans TC", system-ui, sans-serif`;
+const MONO_STACK = `"JetBrains Mono", "Noto Sans TC", ui-monospace, SFMono-Regular, Menlo, monospace`;
+const PIXEL_STACK = `"Press Start 2P", "Noto Sans TC", ui-monospace, monospace`;
+const DISPLAY_STACK = `"Bebas Neue", "Noto Sans TC", Impact, sans-serif`;
+const COMIC_STACK = `"Bangers", "Noto Sans TC", cursive`;
+const ROUND_STACK = `"Zen Maru Gothic", "Noto Sans TC", system-ui, sans-serif`;
+const LUXURY_STACK = `"Cormorant Garamond", "Noto Serif TC", Georgia, serif`;
+const ORBITRON_STACK = `"Orbitron", "Noto Sans TC", system-ui, sans-serif`;
+
 const STYLE_DEFS = [
-  { id: "paper", name: "Paper Classic", zh: "紙感經典", desc: "米色紙張、襯線字、翻頁鐘", sample: "5/4" },
-  { id: "braun", name: "Braun Desk", zh: "包浩斯儀表", desc: "淺灰面板、橘色訊號、工業控制感", sample: "ET66" },
-  { id: "anime", name: "Anime Pastel", zh: "動漫粉彩", desc: "柔和粉彩、可愛標籤、輕亮氛圍", sample: "きら" },
-  { id: "cyber", name: "Cyber Neon", zh: "賽博霓虹", desc: "深色底、青紫光、夜間資訊牆", sample: "19:57" },
-  { id: "editorial", name: "Editorial Ink", zh: "雜誌主編", desc: "報刊欄線、沉穩紅黑、資訊密度高", sample: "NEWS" },
-  { id: "forest", name: "Forest Zen", zh: "森林靜心", desc: "綠色紙張、低刺激、長時間觀看", sample: "WOOD" },
-  { id: "ocean", name: "Ocean Glass", zh: "海洋玻璃", desc: "藍綠透明感、冷靜清爽", sample: "WAVE" },
-  { id: "sunset", name: "Sunset Warm", zh: "夕陽暖調", desc: "暖橘光、柔和對比、生活感", sample: "17:30" },
-  { id: "terminal", name: "Terminal Ops", zh: "終端機工作站", desc: "黑綠命令列、工程監控氣質", sample: "$ now" },
-  { id: "noir", name: "Luxury Noir", zh: "黑金精品", desc: "黑底金線、展示櫃與高級鐘錶感", sample: "NOIR" }
+  { id: "paper", name: "Paper Classic", zh: "紙感經典", desc: "米色紙張、襯線字、翻頁鐘", sample: "5/4", layout: "classic", family: "paper", vars: { "--outer": "#15110c", "--paper": "#f1ebdc", "--paper-deep": "#e8e0cc", "--ink": "#2a2520", "--ink-soft": "#6b6358", "--ink-faint": "#9a9080", "--line": "#cdc3ae", "--stamp": "#a0382e", "--green": "#2d5a3d", "--glow": "rgba(255, 248, 225, 0.08)", "--font-body": SERIF_STACK, "--font-display": SERIF_STACK, "--font-clock": SERIF_STACK, "--device-radius": "0px" } },
+  { id: "braun", name: "Braun Desk", zh: "包浩斯儀表", desc: "淺灰面板、橘色訊號、工業控制感", sample: "ET66", layout: "dense", family: "geometric", vars: { "--outer": "#1f211f", "--paper": "#d8d5ca", "--paper-deep": "#c9c4b8", "--ink": "#282725", "--ink-soft": "#5f5b53", "--ink-faint": "#8e887b", "--line": "#b5afa3", "--stamp": "#e85d2c", "--green": "#56633d", "--glow": "rgba(232, 93, 44, 0.12)", "--font-body": GEOMETRIC_STACK, "--font-display": GEOMETRIC_STACK, "--font-clock": MONO_STACK, "--device-radius": "2px" } },
+  { id: "anime", name: "Anime Pastel", zh: "動漫粉彩", desc: "柔和粉彩、圓角卡片、輕亮氛圍", sample: "きら", layout: "bento", family: "soft", vars: { "--outer": "#fff0f6", "--paper": "#fff8fb", "--paper-deep": "#f8dce8", "--ink": "#352633", "--ink-soft": "#765c70", "--ink-faint": "#a9879e", "--line": "#ecc5d8", "--stamp": "#e65d9a", "--green": "#4f8d88", "--glow": "rgba(230, 93, 154, 0.18)", "--font-body": ROUND_STACK, "--font-display": ROUND_STACK, "--font-clock": GEOMETRIC_STACK, "--device-radius": "14px" } },
+  { id: "cyber", name: "Cyber Neon", zh: "賽博霓虹", desc: "深色底、青紫光、夜間資訊牆", sample: "19:57", layout: "command", family: "neon", vars: { "--outer": "#050714", "--paper": "#0a0f21", "--paper-deep": "#101a33", "--ink": "#d8f7ff", "--ink-soft": "#8ed6e8", "--ink-faint": "#5b8296", "--line": "#25435f", "--stamp": "#ff4fd8", "--green": "#43f6b3", "--glow": "rgba(75, 224, 255, 0.18)", "--font-body": GEOMETRIC_STACK, "--font-display": ORBITRON_STACK, "--font-clock": ORBITRON_STACK, "--device-radius": "6px", "--texture-bg": "linear-gradient(rgba(75,224,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,79,216,0.05) 1px, transparent 1px)" } },
+  { id: "editorial", name: "Editorial Ink", zh: "雜誌主編", desc: "報刊欄線、沉穩紅黑、資訊密度高", sample: "NEWS", layout: "magazine", family: "editorial", vars: { "--outer": "#0e0e0d", "--paper": "#f7f3e8", "--paper-deep": "#ebe2d0", "--ink": "#121212", "--ink-soft": "#55504a", "--ink-faint": "#918778", "--line": "#b9ae9d", "--stamp": "#b51d23", "--green": "#245c3d", "--glow": "rgba(181, 29, 35, 0.12)", "--font-body": SERIF_STACK, "--font-display": LUXURY_STACK, "--font-clock": LUXURY_STACK, "--device-radius": "0px" } },
+  { id: "forest", name: "Forest Zen", zh: "森林靜心", desc: "綠色紙張、低刺激、長時間觀看", sample: "WOOD", layout: "calm", family: "nature", vars: { "--outer": "#0d1711", "--paper": "#e9efe2", "--paper-deep": "#d4ddca", "--ink": "#17251b", "--ink-soft": "#51604f", "--ink-faint": "#7d8a78", "--line": "#aebca5", "--stamp": "#9a5234", "--green": "#1e7048", "--glow": "rgba(87, 134, 89, 0.16)", "--font-body": ROUND_STACK, "--font-display": SERIF_STACK, "--font-clock": LUXURY_STACK, "--device-radius": "10px" } },
+  { id: "ocean", name: "Ocean Glass", zh: "海洋玻璃", desc: "藍綠透明感、冷靜清爽", sample: "WAVE", layout: "bento", family: "glass", vars: { "--outer": "#071820", "--paper": "#e6f2f4", "--paper-deep": "#cfe4e9", "--ink": "#102b35", "--ink-soft": "#4d6d76", "--ink-faint": "#809aa3", "--line": "#a9c9d2", "--stamp": "#2477a3", "--green": "#147f72", "--glow": "rgba(50, 153, 190, 0.18)", "--font-body": SANS_STACK, "--font-display": GEOMETRIC_STACK, "--font-clock": GEOMETRIC_STACK, "--device-radius": "18px" } },
+  { id: "sunset", name: "Sunset Warm", zh: "夕陽暖調", desc: "暖橘光、柔和對比、生活感", sample: "17:30", layout: "split", family: "warm", vars: { "--outer": "#26120d", "--paper": "#fff0dc", "--paper-deep": "#f3d2b0", "--ink": "#351f19", "--ink-soft": "#795649", "--ink-faint": "#a88372", "--line": "#dbb69d", "--stamp": "#c34b2f", "--green": "#5e7140", "--glow": "rgba(235, 124, 72, 0.16)", "--font-body": SANS_STACK, "--font-display": DISPLAY_STACK, "--font-clock": GEOMETRIC_STACK, "--device-radius": "16px" } },
+  { id: "terminal", name: "Terminal Ops", zh: "終端機工作站", desc: "黑綠命令列、工程監控氣質", sample: "$ now", layout: "command", family: "terminal", vars: { "--outer": "#000b07", "--paper": "#04140d", "--paper-deep": "#092015", "--ink": "#c8ffd5", "--ink-soft": "#7ddc93", "--ink-faint": "#4e8d62", "--line": "#1d4a31", "--stamp": "#56f08a", "--green": "#9cffb5", "--glow": "rgba(86, 240, 138, 0.16)", "--font-body": MONO_STACK, "--font-display": MONO_STACK, "--font-clock": MONO_STACK, "--device-radius": "0px" } },
+  { id: "noir", name: "Luxury Noir", zh: "黑金精品", desc: "黑底金線、展示櫃與高級鐘錶感", sample: "NOIR", layout: "poster", family: "luxury", vars: { "--outer": "#050403", "--paper": "#11100e", "--paper-deep": "#1d1a15", "--ink": "#efe2c2", "--ink-soft": "#c0ad82", "--ink-faint": "#806f4f", "--line": "#5c4d31", "--stamp": "#d8aa42", "--green": "#a8b76a", "--glow": "rgba(216, 170, 66, 0.16)", "--font-body": LUXURY_STACK, "--font-display": LUXURY_STACK, "--font-clock": LUXURY_STACK, "--device-radius": "4px" } },
+  { id: "pixel", name: "Pixel Quest", zh: "像素任務", desc: "8-bit 方塊、低解析 HUD、復古遊戲節奏", sample: "8BIT", layout: "arcade", family: "pixel", vars: { "--outer": "#10121f", "--paper": "#1e2340", "--paper-deep": "#2c335d", "--ink": "#f8f4c6", "--ink-soft": "#ffd166", "--ink-faint": "#7bdff2", "--line": "#49508a", "--stamp": "#ef476f", "--green": "#06d6a0", "--glow": "rgba(239, 71, 111, 0.2)", "--font-body": PIXEL_STACK, "--font-display": PIXEL_STACK, "--font-clock": PIXEL_STACK, "--device-radius": "0px" } },
+  { id: "platform", name: "Platform Pop", zh: "平台冒險", desc: "紅藍亮色、關卡感資訊列、跳躍遊戲氛圍", sample: "JUMP", layout: "arcade", family: "platform", vars: { "--outer": "#58b7ff", "--paper": "#fff3c4", "--paper-deep": "#ffc857", "--ink": "#16324f", "--ink-soft": "#2f6690", "--ink-faint": "#6c91bf", "--line": "#1b5299", "--stamp": "#d62828", "--green": "#2a9d8f", "--glow": "rgba(255, 200, 87, 0.28)", "--font-body": GEOMETRIC_STACK, "--font-display": DISPLAY_STACK, "--font-clock": DISPLAY_STACK, "--device-radius": "8px" } },
+  { id: "synthwave", name: "Synthwave Grid", zh: "合成波夜景", desc: "紫粉夕陽、地平線格網、80 年代電子感", sample: "1984", layout: "poster", family: "neon", vars: { "--outer": "#13051f", "--paper": "#1a0b2e", "--paper-deep": "#2b124c", "--ink": "#ffe8ff", "--ink-soft": "#ff9de2", "--ink-faint": "#a884ff", "--line": "#5f2c82", "--stamp": "#ff6ec7", "--green": "#00f5d4", "--glow": "rgba(255, 110, 199, 0.22)", "--font-body": GEOMETRIC_STACK, "--font-display": ORBITRON_STACK, "--font-clock": ORBITRON_STACK, "--device-radius": "12px", "--texture-bg": "linear-gradient(rgba(255,110,199,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,212,0.08) 1px, transparent 1px)" } },
+  { id: "vapor", name: "Vapor Mall", zh: "蒸氣波商場", desc: "粉紫青綠、錯位標籤、Y2K 消費文化", sample: "AEST", layout: "split", family: "vapor", vars: { "--outer": "#f6d6ff", "--paper": "#fff7ff", "--paper-deep": "#d5f3ff", "--ink": "#312244", "--ink-soft": "#5f4b8b", "--ink-faint": "#9d75cb", "--line": "#cdb4db", "--stamp": "#00bbf9", "--green": "#00f5d4", "--glow": "rgba(0, 187, 249, 0.2)", "--font-body": SANS_STACK, "--font-display": DISPLAY_STACK, "--font-clock": GEOMETRIC_STACK, "--device-radius": "18px" } },
+  { id: "aurora", name: "Aurora Glass", zh: "極光玻璃", desc: "半透明層次、冷色光暈、現代科技桌面", sample: "AURA", layout: "bento", family: "glass", vars: { "--outer": "#07111f", "--paper": "#102238", "--paper-deep": "#173b54", "--ink": "#efffff", "--ink-soft": "#b3f7ff", "--ink-faint": "#7ca8bd", "--line": "#2f6f80", "--stamp": "#7cffcb", "--green": "#9bfffc", "--glow": "rgba(124, 255, 203, 0.2)", "--font-body": SANS_STACK, "--font-display": GEOMETRIC_STACK, "--font-clock": ORBITRON_STACK, "--device-radius": "22px" } },
+  { id: "brutal", name: "Brutalist Poster", zh: "粗野海報", desc: "硬邊框、強對比、反模板文化刊物", sample: "BOLD", layout: "poster", family: "brutal", vars: { "--outer": "#f4ff00", "--paper": "#ffffff", "--paper-deep": "#111111", "--ink": "#0b0b0b", "--ink-soft": "#3b3b3b", "--ink-faint": "#707070", "--line": "#0b0b0b", "--stamp": "#ff003d", "--green": "#0057ff", "--glow": "rgba(255, 0, 61, 0.2)", "--font-body": SANS_STACK, "--font-display": DISPLAY_STACK, "--font-clock": DISPLAY_STACK, "--device-radius": "0px" } },
+  { id: "swiss", name: "Swiss Grid", zh: "瑞士網格", desc: "白底黑字、嚴格對齊、國際主義資訊版", sample: "GRID", layout: "magazine", family: "swiss", vars: { "--outer": "#d9d9d9", "--paper": "#fbfbf7", "--paper-deep": "#eeeeea", "--ink": "#101010", "--ink-soft": "#4d4d4d", "--ink-faint": "#8a8a8a", "--line": "#1a1a1a", "--stamp": "#e00022", "--green": "#006c67", "--glow": "rgba(224, 0, 34, 0.08)", "--font-body": SANS_STACK, "--font-display": GEOMETRIC_STACK, "--font-clock": GEOMETRIC_STACK, "--device-radius": "0px" } },
+  { id: "manga", name: "Manga Panel", zh: "黑白漫畫", desc: "網點紋理、分鏡框、漫畫雜誌衝擊感", sample: "BAM!", layout: "magazine", family: "manga", vars: { "--outer": "#090909", "--paper": "#fffdf2", "--paper-deep": "#e9e5d6", "--ink": "#111111", "--ink-soft": "#383838", "--ink-faint": "#747474", "--line": "#111111", "--stamp": "#e63946", "--green": "#2a9d8f", "--glow": "rgba(255, 253, 242, 0.12)", "--font-body": SANS_STACK, "--font-display": COMIC_STACK, "--font-clock": DISPLAY_STACK, "--device-radius": "0px", "--texture-bg": "radial-gradient(circle, rgba(0,0,0,0.16) 1px, transparent 1px)" } },
+  { id: "mecha", name: "Mecha Cockpit", zh: "機甲駕駛艙", desc: "橘色警示、艙內儀表、戰術掃描線", sample: "CORE", layout: "command", family: "cockpit", vars: { "--outer": "#080d12", "--paper": "#101820", "--paper-deep": "#1c2b34", "--ink": "#e7f0f2", "--ink-soft": "#a9c2ca", "--ink-faint": "#607d87", "--line": "#38515d", "--stamp": "#ff8a00", "--green": "#72e06a", "--glow": "rgba(255, 138, 0, 0.2)", "--font-body": GEOMETRIC_STACK, "--font-display": ORBITRON_STACK, "--font-clock": ORBITRON_STACK, "--device-radius": "6px" } },
+  { id: "space", name: "Starship Deck", zh: "星艦控制", desc: "深空藍、艙橋面板、航行控制台", sample: "ORBIT", layout: "command", family: "space", vars: { "--outer": "#020617", "--paper": "#0f172a", "--paper-deep": "#172554", "--ink": "#e0f2fe", "--ink-soft": "#93c5fd", "--ink-faint": "#64748b", "--line": "#1d4ed8", "--stamp": "#38bdf8", "--green": "#a3e635", "--glow": "rgba(56, 189, 248, 0.16)", "--font-body": GEOMETRIC_STACK, "--font-display": ORBITRON_STACK, "--font-clock": ORBITRON_STACK, "--device-radius": "14px" } },
+  { id: "cafe", name: "Cafe Walnut", zh: "咖啡木質", desc: "木桌、拿鐵色、適合日常生活桌面", sample: "LATTE", layout: "calm", family: "warm", vars: { "--outer": "#26160f", "--paper": "#f7ead8", "--paper-deep": "#d9b994", "--ink": "#2f1f17", "--ink-soft": "#765943", "--ink-faint": "#a8896d", "--line": "#b99069", "--stamp": "#8f3f24", "--green": "#5d7a3d", "--glow": "rgba(217, 185, 148, 0.16)", "--font-body": SERIF_STACK, "--font-display": LUXURY_STACK, "--font-clock": LUXURY_STACK, "--device-radius": "16px" } },
+  { id: "sakura", name: "Sakura Washi", zh: "櫻花和紙", desc: "淡粉和紙、細線留白、柔和日系文具感", sample: "春", layout: "calm", family: "soft", vars: { "--outer": "#3d2b33", "--paper": "#fff7f7", "--paper-deep": "#f7dfe7", "--ink": "#33262b", "--ink-soft": "#7d5f69", "--ink-faint": "#b18b98", "--line": "#e7b7c7", "--stamp": "#d65a7a", "--green": "#6b8f71", "--glow": "rgba(214, 90, 122, 0.14)", "--font-body": ROUND_STACK, "--font-display": SERIF_STACK, "--font-clock": LUXURY_STACK, "--device-radius": "12px" } },
+  { id: "nordic", name: "Nordic Snow", zh: "北歐雪境", desc: "冷白藍灰、乾淨留白、低噪音桌面", sample: "SNOW", layout: "calm", family: "nordic", vars: { "--outer": "#0f172a", "--paper": "#f8fafc", "--paper-deep": "#e2e8f0", "--ink": "#0f172a", "--ink-soft": "#475569", "--ink-faint": "#94a3b8", "--line": "#cbd5e1", "--stamp": "#2563eb", "--green": "#0f766e", "--glow": "rgba(148, 163, 184, 0.18)", "--font-body": SANS_STACK, "--font-display": GEOMETRIC_STACK, "--font-clock": GEOMETRIC_STACK, "--device-radius": "20px" } },
+  { id: "solarpunk", name: "Solarpunk Lab", zh: "太陽龐克", desc: "植物、能源、明亮黃綠的未來感", sample: "SUN", layout: "bento", family: "nature", vars: { "--outer": "#16351f", "--paper": "#fff8d6", "--paper-deep": "#d9f99d", "--ink": "#17351f", "--ink-soft": "#4d6b31", "--ink-faint": "#85955a", "--line": "#b5c56b", "--stamp": "#f59e0b", "--green": "#16a34a", "--glow": "rgba(245, 158, 11, 0.18)", "--font-body": ROUND_STACK, "--font-display": GEOMETRIC_STACK, "--font-clock": GEOMETRIC_STACK, "--device-radius": "18px" } },
+  { id: "crt", name: "Retro CRT", zh: "復古電視", desc: "掃描線、琥珀螢幕、老顯示器質感", sample: "CH03", layout: "command", family: "terminal", vars: { "--outer": "#080600", "--paper": "#191205", "--paper-deep": "#261b07", "--ink": "#ffd166", "--ink-soft": "#e9a93b", "--ink-faint": "#8c6a2c", "--line": "#5f4514", "--stamp": "#ffb703", "--green": "#90be6d", "--glow": "rgba(255, 183, 3, 0.18)", "--font-body": MONO_STACK, "--font-display": MONO_STACK, "--font-clock": MONO_STACK, "--device-radius": "24px" } },
+  { id: "lab", name: "White Lab", zh: "白色實驗室", desc: "白板、藍色標籤、乾淨資料儀器感", sample: "LAB", layout: "dense", family: "lab", vars: { "--outer": "#dbeafe", "--paper": "#ffffff", "--paper-deep": "#eff6ff", "--ink": "#102033", "--ink-soft": "#46627d", "--ink-faint": "#8aa2b8", "--line": "#bfdbfe", "--stamp": "#2563eb", "--green": "#059669", "--glow": "rgba(37, 99, 235, 0.12)", "--font-body": SANS_STACK, "--font-display": GEOMETRIC_STACK, "--font-clock": GEOMETRIC_STACK, "--device-radius": "12px" } },
+  { id: "museum", name: "Museum Label", zh: "美術館標籤", desc: "展牆、編目、精品展覽文字秩序", sample: "ART", layout: "magazine", family: "museum", vars: { "--outer": "#1f1f1a", "--paper": "#f6f1e8", "--paper-deep": "#e5ddd0", "--ink": "#24221d", "--ink-soft": "#6a6258", "--ink-faint": "#9b9082", "--line": "#c8bca9", "--stamp": "#6f1d1b", "--green": "#356859", "--glow": "rgba(246, 241, 232, 0.12)", "--font-body": LUXURY_STACK, "--font-display": LUXURY_STACK, "--font-clock": LUXURY_STACK, "--device-radius": "0px" } },
+  { id: "blueprint", name: "Blueprint Grid", zh: "藍圖工程", desc: "工程格線、白線標注、設計圖紙質感", sample: "PLAN", layout: "dense", family: "blueprint", vars: { "--outer": "#061b33", "--paper": "#0b2a4a", "--paper-deep": "#123d66", "--ink": "#d9f2ff", "--ink-soft": "#98d7ff", "--ink-faint": "#5e9cc3", "--line": "#5ab1ef", "--stamp": "#ffffff", "--green": "#7dd3fc", "--glow": "rgba(90, 177, 239, 0.16)", "--font-body": MONO_STACK, "--font-display": GEOMETRIC_STACK, "--font-clock": MONO_STACK, "--device-radius": "0px", "--texture-bg": "linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)" } },
+  { id: "racing", name: "Racing HUD", zh: "賽車儀表", desc: "斜切速度線、紅白黑儀表、性能感", sample: "RPM", layout: "split", family: "sport", vars: { "--outer": "#111111", "--paper": "#f5f5f5", "--paper-deep": "#e5e5e5", "--ink": "#111111", "--ink-soft": "#4b4b4b", "--ink-faint": "#8a8a8a", "--line": "#111111", "--stamp": "#e10600", "--green": "#00a676", "--glow": "rgba(225, 6, 0, 0.18)", "--font-body": GEOMETRIC_STACK, "--font-display": DISPLAY_STACK, "--font-clock": DISPLAY_STACK, "--device-radius": "4px" } },
+  { id: "candy", name: "Candy Toy", zh: "糖果玩具", desc: "高彩度、泡泡卡片、活潑桌面小物感", sample: "POP", layout: "bento", family: "soft", vars: { "--outer": "#ffe5ec", "--paper": "#ffffff", "--paper-deep": "#ffc2d1", "--ink": "#3a0ca3", "--ink-soft": "#7209b7", "--ink-faint": "#b5179e", "--line": "#ffafcc", "--stamp": "#ff006e", "--green": "#00b4d8", "--glow": "rgba(255, 0, 110, 0.18)", "--font-body": ROUND_STACK, "--font-display": COMIC_STACK, "--font-clock": DISPLAY_STACK, "--device-radius": "24px" } }
 ];
+
+const STYLE_VAR_KEYS = [...new Set(STYLE_DEFS.flatMap((style) => Object.keys(style.vars || {})))];
 
 const LAYOUT_DEFS = [
   { id: "classic", zh: "經典三頁", desc: "時間、資訊與頁籤保持均衡。" },
   { id: "clock-max", zh: "大時間", desc: "把時間放到最大，適合桌面常駐。" },
   { id: "dense", zh: "資訊密集", desc: "降低留白，適合電腦或大螢幕。" },
-  { id: "calm", zh: "極簡安靜", desc: "減少視覺刺激，適合長時間觀看。" }
+  { id: "calm", zh: "極簡安靜", desc: "減少視覺刺激，適合長時間觀看。" },
+  { id: "bento", zh: "Bento 卡片", desc: "用不規則卡片提高視覺層次。" },
+  { id: "command", zh: "指揮中控", desc: "強化邊框、HUD 與監控感。" },
+  { id: "magazine", zh: "雜誌分欄", desc: "像刊物版面一樣重視標題與欄線。" },
+  { id: "poster", zh: "海報焦點", desc: "把時間和主題做成第一視覺。" },
+  { id: "arcade", zh: "遊戲 HUD", desc: "像遊戲狀態列一樣活潑強烈。" },
+  { id: "split", zh: "左右分割", desc: "時間與內容形成左右主從。" }
 ];
 
 const CHARACTER_DEFS = [
@@ -94,7 +133,7 @@ const DEFAULT_PROFILES = [
       { title: "季末檢討", date: "2026-06-30" }
     ],
     notes: [
-      { title: "展示用設定檔", body: "可在 CONFIG 修改後，成為任一同事的個人儀表板。" },
+      { title: "展示用設定檔", body: "可在設定修改後，成為任一同事的個人儀表板。" },
       { title: "共用原則", body: "每個瀏覽器各自儲存，不會寫回其他人的設定。" }
     ]
   }
@@ -178,6 +217,18 @@ function getLayout(id) {
   return LAYOUT_DEFS.find((layout) => layout.id === id) || LAYOUT_DEFS[0];
 }
 
+function stylePreviewVars(style) {
+  const vars = style.vars || {};
+  const font = String(vars["--font-display"] || SERIF_STACK).replaceAll('"', "'");
+  return [
+    `--sample-bg:${vars["--paper"] || "#f1ebdc"}`,
+    `--sample-deep:${vars["--paper-deep"] || "#e8e0cc"}`,
+    `--sample-color:${vars["--ink"] || "#2a2520"}`,
+    `--sample-accent:${vars["--stamp"] || "#a0382e"}`,
+    `--sample-font:${font}`
+  ].join(";");
+}
+
 function getCallName() {
   return activeProfile?.callName || activeProfile?.name || "Guest";
 }
@@ -256,13 +307,15 @@ function renderWelcome() {
     </label>`;
   }).join("");
 
-  $("#styleGrid").innerHTML = STYLE_DEFS.map((style) => (
-    `<button class="style-card style-swatch-${style.id}${activeProfile.style === style.id ? " active" : ""}" data-style="${style.id}" type="button">
+  $("#styleGrid").innerHTML = STYLE_DEFS.map((style) => {
+    const layout = getLayout(style.layout);
+    return `<button class="style-card${activeProfile.style === style.id ? " active" : ""}" data-style="${style.id}" style="${stylePreviewVars(style)}" type="button">
       <span class="style-sample">${style.sample}</span>
       <strong>${style.zh}</strong>
       <small>${style.desc}</small>
-    </button>`
-  )).join("");
+      <em>${layout.zh}</em>
+    </button>`;
+  }).join("");
 
   $("#layoutGrid").innerHTML = LAYOUT_DEFS.map((layout) => (
     `<button class="layout-card${activeProfile.layout === layout.id ? " active" : ""}" data-layout="${layout.id}" type="button">
@@ -310,7 +363,9 @@ function renderWelcome() {
 
   $all("[data-style]").forEach((button) => {
     button.addEventListener("click", () => {
-      activeProfile.style = button.dataset.style;
+      const style = getStyle(button.dataset.style);
+      activeProfile.style = style.id;
+      activeProfile.layout = style.layout || activeProfile.layout || "classic";
       updateActiveProfile();
       applyTheme();
       renderWelcome();
@@ -367,7 +422,7 @@ function createProfile() {
   base.name = "新設定檔";
   base.callName = "新朋友";
   base.identity = "請記錄這位使用者是誰";
-  base.role = "請在 CONFIG 填入使用者資料";
+  base.role = "請在設定填入使用者資料";
   profiles.push(base);
   selectedProfileId = base.id;
   activeProfile = base;
@@ -384,8 +439,12 @@ function updateActiveProfile() {
 }
 
 function applyTheme() {
-  document.body.dataset.style = activeProfile.style || "paper";
-  document.body.dataset.layout = activeProfile.layout || "classic";
+  const style = getStyle(activeProfile.style || "paper");
+  STYLE_VAR_KEYS.forEach((key) => document.body.style.removeProperty(key));
+  Object.entries(style.vars || {}).forEach(([key, value]) => document.body.style.setProperty(key, value));
+  document.body.dataset.style = style.id;
+  document.body.dataset.styleFamily = style.family || "paper";
+  document.body.dataset.layout = activeProfile.layout || style.layout || "classic";
   document.title = `${getCallName()} Dashboard`;
 }
 
@@ -442,7 +501,7 @@ async function loadExternalProfileData() {
 function renderArena() {
   const arena = $("#arenaLayer");
   const battle = activeProfile.battle || {};
-  const showArena = battle.enabled && ["anime", "cyber", "terminal", "noir"].includes(activeProfile.style);
+  const showArena = battle.enabled;
   arena.classList.toggle("active", showArena);
   if (!showArena) {
     arena.innerHTML = "";
@@ -575,7 +634,7 @@ function renderCalendar() {
   const events = [...(activeProfile.events || [])].sort((a, b) => a.start.localeCompare(b.start));
   if (!events.length) {
     $("#eventTitle").textContent = "尚未設定行事曆";
-    $("#eventTime").textContent = "請在 CONFIG 新增事件";
+    $("#eventTime").textContent = "請在設定新增事件";
     $("#eventMins").textContent = "--";
     $("#eventMinsLabel").textContent = "分鐘";
     $("#calendarList").innerHTML = "";
