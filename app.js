@@ -1,25 +1,86 @@
 const PANEL_MS = 12000;
-const TABS = ["weather", "calendar", "countdown"];
+const STORAGE_PROFILES = "paperDashboardProfilesV2";
+const STORAGE_SELECTED = "paperDashboardSelectedProfile";
 const WEEKDAYS_ZH = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
 const WEEKDAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
-const DEFAULT_EVENTS = [
-  { title: "晨間整理", start: "08:40", end: "09:10", where: "Craig Desk" },
-  { title: "論文與寫作", start: "10:00", end: "12:00", where: "Secondbrain" },
-  { title: "Codex 工作整理", start: "15:00", end: "16:00", where: "Dashboard" },
-  { title: "晚間收束", start: "21:30", end: "22:00", where: "Desk" }
+const PAGE_DEFS = [
+  { id: "weather", label: "天　氣", short: "天氣", desc: "即時天氣、溫度與降雨機率" },
+  { id: "calendar", label: "行　事　曆", short: "行事曆", desc: "今日正在進行與即將到來的事項" },
+  { id: "countdown", label: "倒　數　日", short: "倒數日", desc: "重要日期、紀念日與里程碑" },
+  { id: "notes", label: "焦　點", short: "焦點", desc: "今日提醒、工作重點與個人提示" }
 ];
 
-const DEFAULT_COUNTDOWNS = [
-  { title: "Dashboard 上線", date: "2026-05-04" },
-  { title: "年底 / Year End", date: "2026-12-31" },
-  { title: "生日", date: "1994-07-18", repeat: true },
-  { title: "博士論文節點", date: "2026-12-31" }
+const STYLE_DEFS = [
+  { id: "paper", name: "Paper Classic", zh: "紙感經典", desc: "米色紙張、襯線字、翻頁鐘", sample: "5/4" },
+  { id: "braun", name: "Braun Desk", zh: "包浩斯儀表", desc: "淺灰面板、橘色訊號、工業控制感", sample: "ET66" },
+  { id: "anime", name: "Anime Pastel", zh: "動漫粉彩", desc: "柔和粉彩、可愛標籤、輕亮氛圍", sample: "きら" },
+  { id: "cyber", name: "Cyber Neon", zh: "賽博霓虹", desc: "深色底、青紫光、夜間資訊牆", sample: "19:57" },
+  { id: "editorial", name: "Editorial Ink", zh: "雜誌主編", desc: "報刊欄線、沉穩紅黑、資訊密度高", sample: "NEWS" },
+  { id: "forest", name: "Forest Zen", zh: "森林靜心", desc: "綠色紙張、低刺激、長時間觀看", sample: "WOOD" },
+  { id: "ocean", name: "Ocean Glass", zh: "海洋玻璃", desc: "藍綠透明感、冷靜清爽", sample: "WAVE" },
+  { id: "sunset", name: "Sunset Warm", zh: "夕陽暖調", desc: "暖橘光、柔和對比、生活感", sample: "17:30" },
+  { id: "terminal", name: "Terminal Ops", zh: "終端機工作站", desc: "黑綠命令列、工程監控氣質", sample: "$ now" },
+  { id: "noir", name: "Luxury Noir", zh: "黑金精品", desc: "黑底金線、展示櫃與高級鐘錶感", sample: "NOIR" }
 ];
 
+const DEFAULT_PROFILES = [
+  {
+    id: "craig",
+    name: "Craig",
+    role: "個人桌面 · 待補完整資料",
+    style: "paper",
+    enabledTabs: ["weather", "calendar", "countdown", "notes"],
+    location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: true },
+    events: [
+      { title: "晨間整理", start: "08:40", end: "09:10", where: "Craig Desk" },
+      { title: "論文與寫作", start: "10:00", end: "12:00", where: "Secondbrain" },
+      { title: "Codex 工作整理", start: "15:00", end: "16:00", where: "Dashboard" },
+      { title: "晚間收束", start: "21:30", end: "22:00", where: "Desk" }
+    ],
+    countdowns: [
+      { title: "Dashboard 上線", date: "2026-05-04" },
+      { title: "年底 / Year End", date: "2026-12-31" },
+      { title: "生日", date: "1994-07-18", repeat: true },
+      { title: "博士論文節點", date: "2026-12-31" }
+    ],
+    notes: [
+      { title: "今日主軸", body: "先整理個人資料，再把固定資訊做成可共用的設定檔。" },
+      { title: "資料狀態", body: "天氣即時讀取；行事曆與倒數日先以本機設定儲存。" },
+      { title: "下一步", body: "提供個人資料後，可直接寫入 Craig 預設設定檔並重新部署。" }
+    ]
+  },
+  {
+    id: "guest",
+    name: "Guest",
+    role: "共用展示 · 可複製成同事設定檔",
+    style: "ocean",
+    enabledTabs: ["weather", "calendar", "notes"],
+    location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: false },
+    events: [
+      { title: "團隊晨會", start: "09:30", end: "10:00", where: "Meeting" },
+      { title: "專案檢查", start: "14:00", end: "15:00", where: "Workspace" },
+      { title: "回報整理", start: "17:00", end: "17:30", where: "Desk" }
+    ],
+    countdowns: [
+      { title: "月報截止", date: "2026-05-31" },
+      { title: "季末檢討", date: "2026-06-30" }
+    ],
+    notes: [
+      { title: "展示用設定檔", body: "可在 CONFIG 修改後，成為任一同事的個人儀表板。" },
+      { title: "共用原則", body: "每個瀏覽器各自儲存，不會寫回其他人的設定。" }
+    ]
+  }
+];
+
+let profiles = [];
+let selectedProfileId = "";
+let activeProfile = null;
+let activeTabs = ["weather", "calendar", "countdown", "notes"];
 let activeIndex = 0;
 let panelStartedAt = Date.now();
+let weatherTimer = null;
 
 function $(selector) {
   return document.querySelector(selector);
@@ -33,12 +94,39 @@ function pad(value) {
   return String(value).padStart(2, "0");
 }
 
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 function getWeekNumber(date) {
   const copy = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = copy.getUTCDay() || 7;
   copy.setUTCDate(copy.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(copy.getUTCFullYear(), 0, 1));
   return Math.ceil((((copy - yearStart) / 86400000) + 1) / 7);
+}
+
+function readProfiles() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_PROFILES) || "[]");
+    if (Array.isArray(stored) && stored.length) return stored;
+  } catch {
+    // Fall through to defaults.
+  }
+  return clone(DEFAULT_PROFILES);
+}
+
+function saveProfiles() {
+  localStorage.setItem(STORAGE_PROFILES, JSON.stringify(profiles));
+  localStorage.setItem(STORAGE_SELECTED, selectedProfileId);
+}
+
+function getProfile(id = selectedProfileId) {
+  return profiles.find((profile) => profile.id === id) || profiles[0];
+}
+
+function getStyle(id) {
+  return STYLE_DEFS.find((style) => style.id === id) || STYLE_DEFS[0];
 }
 
 function setScale() {
@@ -49,7 +137,7 @@ function setScale() {
 function buildClock() {
   for (const group of $all("[data-clock]")) {
     const small = group.classList.contains("sec");
-    group.innerHTML = `${small ? "00" : "00"}`.split("").map((digit) => (
+    group.innerHTML = "00".split("").map((digit) => (
       `<div class="flip-card${small ? " sec" : ""}">
         <div class="flip-half top"><span>${digit}</span></div>
         <div class="flip-half bottom"><span>${digit}</span></div>
@@ -86,6 +174,122 @@ function tick() {
   renderProgress();
 }
 
+function renderWelcome() {
+  $("#profileGrid").innerHTML = profiles.map((profile) => {
+    const style = getStyle(profile.style);
+    const pages = profile.enabledTabs.map((id) => PAGE_DEFS.find((page) => page.id === id)?.short).filter(Boolean).join(" / ");
+    return `<button class="profile-card${profile.id === selectedProfileId ? " active" : ""}" data-profile="${profile.id}" type="button">
+      <span>${profile.name}</span>
+      <strong>${profile.role || "個人設定檔"}</strong>
+      <small>${style.zh} · ${pages}</small>
+    </button>`;
+  }).join("");
+
+  $("#pagePicker").innerHTML = PAGE_DEFS.map((page) => {
+    const checked = activeProfile.enabledTabs.includes(page.id);
+    return `<label class="page-option${checked ? " active" : ""}">
+      <input type="checkbox" value="${page.id}" ${checked ? "checked" : ""}>
+      <span>${page.label}</span>
+      <small>${page.desc}</small>
+    </label>`;
+  }).join("");
+
+  $("#styleGrid").innerHTML = STYLE_DEFS.map((style) => (
+    `<button class="style-card style-swatch-${style.id}${activeProfile.style === style.id ? " active" : ""}" data-style="${style.id}" type="button">
+      <span class="style-sample">${style.sample}</span>
+      <strong>${style.zh}</strong>
+      <small>${style.desc}</small>
+    </button>`
+  )).join("");
+
+  $all("[data-profile]").forEach((button) => {
+    button.addEventListener("click", () => {
+      selectedProfileId = button.dataset.profile;
+      activeProfile = getProfile();
+      applyProfile();
+      renderWelcome();
+    });
+  });
+
+  $all("#pagePicker input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const checked = $all("#pagePicker input:checked").map((item) => item.value);
+      activeProfile.enabledTabs = checked.length ? checked : ["weather"];
+      updateActiveProfile();
+      renderTabs();
+      renderWelcome();
+    });
+  });
+
+  $all("[data-style]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeProfile.style = button.dataset.style;
+      updateActiveProfile();
+      applyTheme();
+      renderWelcome();
+    });
+  });
+}
+
+function showWelcome() {
+  $("#welcomeScreen").classList.add("active");
+}
+
+function hideWelcome() {
+  $("#welcomeScreen").classList.remove("active");
+  panelStartedAt = Date.now();
+}
+
+function createProfile() {
+  const base = clone(activeProfile || DEFAULT_PROFILES[0]);
+  base.id = `profile-${Date.now()}`;
+  base.name = "新設定檔";
+  base.role = "請在 CONFIG 填入使用者資料";
+  profiles.push(base);
+  selectedProfileId = base.id;
+  activeProfile = base;
+  saveProfiles();
+  applyProfile();
+  renderWelcome();
+  openConfig();
+}
+
+function updateActiveProfile() {
+  const index = profiles.findIndex((profile) => profile.id === activeProfile.id);
+  if (index >= 0) profiles[index] = activeProfile;
+  saveProfiles();
+}
+
+function applyTheme() {
+  document.body.dataset.style = activeProfile.style || "paper";
+  document.title = `${activeProfile.name} Dashboard`;
+}
+
+function applyProfile() {
+  activeProfile = getProfile();
+  selectedProfileId = activeProfile.id;
+  activeTabs = activeProfile.enabledTabs?.length ? [...activeProfile.enabledTabs] : ["weather"];
+  if (activeIndex >= activeTabs.length) activeIndex = 0;
+  applyTheme();
+  renderTabs();
+  setPanel(activeIndex);
+  renderCalendar();
+  renderCountdowns();
+  renderNotes();
+  loadWeather();
+  saveProfiles();
+}
+
+function renderTabs() {
+  $("#tabs").innerHTML = activeTabs.map((id, index) => {
+    const page = PAGE_DEFS.find((item) => item.id === id);
+    return `<button class="tab${index === activeIndex ? " active" : ""}" data-tab="${id}" type="button">${page?.short || id}</button>`;
+  }).join("");
+  $all(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => setPanel(activeTabs.indexOf(tab.dataset.tab)));
+  });
+}
+
 function weatherLabel(code) {
   if ([0, 1].includes(code)) return "晴朗";
   if ([2, 3].includes(code)) return "多雲";
@@ -103,7 +307,8 @@ function formatCoords(lat, lon) {
 }
 
 function getPosition() {
-  const fallback = { latitude: 25.033, longitude: 121.5654, label: "臺北市" };
+  const fallback = activeProfile.location || { latitude: 25.033, longitude: 121.5654, label: "臺北市" };
+  if (!fallback.useDeviceLocation) return Promise.resolve(fallback);
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
       resolve(fallback);
@@ -113,7 +318,8 @@ function getPosition() {
       (pos) => resolve({
         latitude: pos.coords.latitude,
         longitude: pos.coords.longitude,
-        label: "所在位置"
+        label: "所在位置",
+        useDeviceLocation: true
       }),
       () => resolve(fallback),
       { enableHighAccuracy: false, timeout: 2500, maximumAge: 1800000 }
@@ -122,6 +328,7 @@ function getPosition() {
 }
 
 async function loadWeather() {
+  if (!activeProfile) return;
   try {
     const pos = await getPosition();
     const params = new URLSearchParams({
@@ -140,9 +347,9 @@ async function loadWeather() {
     const code = Number(current.weather_code || 0);
     const rainIndex = Math.max(0, data.hourly.time.findIndex((time) => new Date(time) >= now));
     const rain = data.hourly.precipitation_probability[rainIndex] ?? "--";
-    $("#weatherCity").textContent = pos.label;
+    $("#weatherCity").textContent = pos.label || activeProfile.location.label || "所在位置";
     $("#weatherCoords").textContent = formatCoords(pos.latitude, pos.longitude);
-    $("#weatherSummary").textContent = `${weatherLabel(code)} · 舒適閱讀與工作`;
+    $("#weatherSummary").textContent = `${weatherLabel(code)} · ${activeProfile.name} 的即時資訊`;
     $("#weatherTemp").textContent = Math.round(current.temperature_2m ?? 0);
     $("#weatherFeels").textContent = `體感 ${Math.round(current.apparent_temperature ?? current.temperature_2m ?? 0)}°`;
     $("#weatherRain").textContent = `降雨 ${rain}%`;
@@ -150,6 +357,7 @@ async function loadWeather() {
     $("#weatherUpdated").textContent = `UPDATED · ${pad(now.getHours())}:${pad(now.getMinutes())}`;
     renderWeatherBlocks(data.hourly, rainIndex);
   } catch (error) {
+    $("#weatherCity").textContent = activeProfile.location?.label || "臺北市";
     $("#weatherSummary").textContent = "天氣資料暫時無法讀取 · 使用離線顯示";
     $("#weatherTemp").textContent = "--";
     $("#weatherFeels").textContent = "體感 --°";
@@ -177,25 +385,6 @@ function renderWeatherBlocks(hourly, startIndex) {
   $("#weatherBlocks").innerHTML = blocks.join("");
 }
 
-function loadEvents() {
-  return readJson("paperDashboardEvents", DEFAULT_EVENTS);
-}
-
-function loadCountdowns() {
-  return readJson("paperDashboardCountdowns", DEFAULT_COUNTDOWNS);
-}
-
-function readJson(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
 function timeToDate(time) {
   const [hours, minutes] = time.split(":").map(Number);
   const date = new Date();
@@ -204,7 +393,16 @@ function timeToDate(time) {
 }
 
 function renderCalendar() {
-  const events = loadEvents().slice().sort((a, b) => a.start.localeCompare(b.start));
+  if (!activeProfile) return;
+  const events = [...(activeProfile.events || [])].sort((a, b) => a.start.localeCompare(b.start));
+  if (!events.length) {
+    $("#eventTitle").textContent = "尚未設定行事曆";
+    $("#eventTime").textContent = "請在 CONFIG 新增事件";
+    $("#eventMins").textContent = "--";
+    $("#eventMinsLabel").textContent = "分鐘";
+    $("#calendarList").innerHTML = "";
+    return;
+  }
   const now = new Date();
   let current = events.find((event) => now >= timeToDate(event.start) && now <= timeToDate(event.end));
   let upcoming = false;
@@ -212,15 +410,14 @@ function renderCalendar() {
     current = events.find((event) => timeToDate(event.start) > now) || events[events.length - 1];
     upcoming = true;
   }
-  if (!current) return;
   const target = upcoming ? timeToDate(current.start) : timeToDate(current.end);
   const mins = Math.max(0, Math.ceil((target - now) / 60000));
   $("#calendarNow").classList.toggle("upcoming", upcoming);
   $("#eventTitle").textContent = current.title;
-  $("#eventTime").textContent = `${current.start} - ${current.end} · ${current.where || "Desk"}`;
+  $("#eventTime").textContent = `${current.start} - ${current.end} · ${current.where || activeProfile.name}`;
   $("#eventMins").textContent = mins;
   $("#eventMinsLabel").textContent = upcoming ? "分後開始" : "分　剩餘";
-  $("#calendarSource").textContent = `TODAY · ${events.length} EVENTS`;
+  $("#calendarSource").textContent = `${activeProfile.name.toUpperCase()} · ${events.length} EVENTS`;
   $("#calendarList").innerHTML = events.map((event) => (
     `<div class="cal-row">
       <time>${event.start} - ${event.end}</time>
@@ -246,8 +443,9 @@ function nextRecurringDate(rawDate, now) {
 }
 
 function renderCountdowns() {
+  if (!activeProfile) return;
   const now = new Date();
-  const items = loadCountdowns().map((item) => {
+  const items = (activeProfile.countdowns || []).map((item) => {
     const target = item.repeat ? nextRecurringDate(item.date, now) : new Date(`${item.date}T00:00:00+08:00`);
     const days = daysBetween(now, target);
     return { ...item, target, days };
@@ -268,47 +466,85 @@ function renderCountdowns() {
         <div class="count-meta">${dateText} · ${past ? "已過" : "還有"} ${count} 天</div>
       </div>
     </div>`;
-  }).join("");
+  }).join("") || `<div class="empty-state">尚未設定倒數日</div>`;
+}
+
+function renderNotes() {
+  const notes = activeProfile.notes || [];
+  $("#noteBoard").innerHTML = notes.map((note, index) => (
+    `<article class="note-card">
+      <span>${pad(index + 1)}</span>
+      <h2>${note.title}</h2>
+      <p>${note.body}</p>
+    </article>`
+  )).join("") || `<div class="empty-state">尚未設定焦點內容</div>`;
 }
 
 function setPanel(index) {
+  if (index < 0) return;
   activeIndex = index;
   panelStartedAt = Date.now();
-  const panelName = TABS[activeIndex];
+  const panelName = activeTabs[activeIndex];
   $all(".tab-panel").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === panelName));
   $all(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === panelName));
-  $("#pageText").textContent = `${pad(activeIndex + 1)}/03`;
+  $("#pageText").textContent = `${pad(activeIndex + 1)}/${pad(activeTabs.length)}`;
 }
 
 function renderProgress() {
   const elapsed = Date.now() - panelStartedAt;
   if (elapsed >= PANEL_MS) {
-    setPanel((activeIndex + 1) % TABS.length);
+    setPanel((activeIndex + 1) % activeTabs.length);
     return;
   }
   $("#progressBar").style.width = `${(elapsed / PANEL_MS) * 100}%`;
 }
 
+function parseJsonList(selector, fallback) {
+  try {
+    const parsed = JSON.parse($(selector).value || "[]");
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function openConfig() {
+  $("#profileNameInput").value = activeProfile.name || "";
+  $("#profileRoleInput").value = activeProfile.role || "";
+  $("#eventsInput").value = JSON.stringify(activeProfile.events || [], null, 2);
+  $("#countdownsInput").value = JSON.stringify(activeProfile.countdowns || [], null, 2);
+  $("#notesInput").value = JSON.stringify(activeProfile.notes || [], null, 2);
+  $("#configDialog").showModal();
+}
+
 function setupConfig() {
-  const dialog = $("#configDialog");
-  $("#configButton").addEventListener("click", () => {
-    $("#eventsInput").value = JSON.stringify(loadEvents(), null, 2);
-    $("#countdownsInput").value = JSON.stringify(loadCountdowns(), null, 2);
-    dialog.showModal();
-  });
+  $("#configButton").addEventListener("click", openConfig);
+  $("#editSelectedProfile").addEventListener("click", openConfig);
+  $("#newProfileButton").addEventListener("click", createProfile);
+  $("#welcomeButton").addEventListener("click", showWelcome);
+  $("#enterDashboard").addEventListener("click", hideWelcome);
+
   $("#saveConfig").addEventListener("click", () => {
-    localStorage.setItem("paperDashboardEvents", $("#eventsInput").value);
-    localStorage.setItem("paperDashboardCountdowns", $("#countdownsInput").value);
-    renderCalendar();
-    renderCountdowns();
+    activeProfile.name = $("#profileNameInput").value.trim() || activeProfile.name;
+    activeProfile.role = $("#profileRoleInput").value.trim() || activeProfile.role;
+    activeProfile.events = parseJsonList("#eventsInput", activeProfile.events || []);
+    activeProfile.countdowns = parseJsonList("#countdownsInput", activeProfile.countdowns || []);
+    activeProfile.notes = parseJsonList("#notesInput", activeProfile.notes || []);
+    updateActiveProfile();
+    applyProfile();
+    renderWelcome();
   });
+
   $("#resetConfig").addEventListener("click", () => {
-    localStorage.removeItem("paperDashboardEvents");
-    localStorage.removeItem("paperDashboardCountdowns");
-    $("#eventsInput").value = JSON.stringify(DEFAULT_EVENTS, null, 2);
-    $("#countdownsInput").value = JSON.stringify(DEFAULT_COUNTDOWNS, null, 2);
-    renderCalendar();
-    renderCountdowns();
+    const defaults = clone(DEFAULT_PROFILES.find((profile) => profile.id === activeProfile.id) || DEFAULT_PROFILES[0]);
+    activeProfile.events = defaults.events;
+    activeProfile.countdowns = defaults.countdowns;
+    activeProfile.notes = defaults.notes;
+    $("#eventsInput").value = JSON.stringify(activeProfile.events, null, 2);
+    $("#countdownsInput").value = JSON.stringify(activeProfile.countdowns, null, 2);
+    $("#notesInput").value = JSON.stringify(activeProfile.notes, null, 2);
+    updateActiveProfile();
+    applyProfile();
   });
 }
 
@@ -318,20 +554,22 @@ function registerServiceWorker() {
 }
 
 function init() {
+  profiles = readProfiles();
+  selectedProfileId = localStorage.getItem(STORAGE_SELECTED) || profiles[0].id;
+  activeProfile = getProfile();
+  selectedProfileId = activeProfile.id;
   setScale();
   buildClock();
-  tick();
-  renderCalendar();
-  renderCountdowns();
   setupConfig();
-  loadWeather();
-  registerServiceWorker();
+  applyProfile();
+  renderWelcome();
+  showWelcome();
+  tick();
+  if (weatherTimer) clearInterval(weatherTimer);
+  weatherTimer = setInterval(loadWeather, 10 * 60 * 1000);
   setInterval(tick, 1000);
-  setInterval(loadWeather, 10 * 60 * 1000);
   window.addEventListener("resize", setScale);
-  $all(".tab").forEach((tab) => {
-    tab.addEventListener("click", () => setPanel(TABS.indexOf(tab.dataset.tab)));
-  });
+  registerServiceWorker();
 }
 
 init();

@@ -20,7 +20,42 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main id="wrap" aria-label="Craig personal paper dashboard">
+  <main id="wrap" aria-label="personal dashboard">
+    <section class="welcome-screen" id="welcomeScreen" aria-label="dashboard setup">
+      <div class="welcome-shell">
+        <div class="welcome-copy">
+          <p class="eyebrow">PERSONAL DASHBOARD</p>
+          <h1>選擇設定檔、頁面與風格</h1>
+          <p>這個 Dashboard 可以給不同使用者、不同裝置和不同場景使用。每個設定檔會保存自己的頁面、行程、倒數日與視覺風格。</p>
+        </div>
+
+        <div class="welcome-controls">
+          <section class="welcome-section">
+            <div class="welcome-section-head">
+              <h2>設定檔</h2>
+              <button class="quiet-button" id="newProfileButton" type="button">新增</button>
+            </div>
+            <div class="profile-grid" id="profileGrid"></div>
+          </section>
+
+          <section class="welcome-section">
+            <h2>頁面資料</h2>
+            <div class="page-picker" id="pagePicker"></div>
+          </section>
+
+          <section class="welcome-section">
+            <h2>風格範例</h2>
+            <div class="style-grid" id="styleGrid"></div>
+          </section>
+
+          <div class="welcome-actions">
+            <button class="primary-button" id="enterDashboard" type="button">進入 Dashboard</button>
+            <button class="secondary-button" id="editSelectedProfile" type="button">編輯設定檔</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="stage">
       <div id="device">
         <header class="header">
@@ -96,14 +131,19 @@
             </div>
             <div class="count-list" id="countList"></div>
           </article>
+
+          <article class="tab-panel" data-panel="notes">
+            <div class="panel-head">
+              <h1 class="panel-title">焦　點</h1>
+              <p class="panel-title-en">FOCUS · MEMO</p>
+            </div>
+            <div class="note-board" id="noteBoard"></div>
+          </article>
         </section>
 
         <footer class="footer">
-          <nav class="tabs" aria-label="dashboard tabs">
-            <button class="tab active" data-tab="weather" type="button">天　氣</button>
-            <button class="tab" data-tab="calendar" type="button">行事曆</button>
-            <button class="tab" data-tab="countdown" type="button">倒數日</button>
-          </nav>
+          <nav class="tabs" id="tabs" aria-label="dashboard tabs"></nav>
+          <button class="config-button" id="welcomeButton" type="button">MENU</button>
           <button class="config-button" id="configButton" type="button">CONFIG</button>
           <div class="page-indicator">
             <span id="pageText">01/03</span>
@@ -127,6 +167,18 @@
       <label>
         倒數日 JSON
         <textarea id="countdownsInput" spellcheck="false"></textarea>
+      </label>
+      <label>
+        焦點 JSON
+        <textarea id="notesInput" spellcheck="false"></textarea>
+      </label>
+      <label>
+        設定檔名稱
+        <input id="profileNameInput" type="text">
+      </label>
+      <label>
+        角色／說明
+        <input id="profileRoleInput" type="text">
       </label>
       <div class="config-actions">
         <button id="resetConfig" type="button">還原預設</button>
