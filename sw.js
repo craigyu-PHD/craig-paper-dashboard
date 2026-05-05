@@ -1,4 +1,4 @@
-const CACHE_NAME = "craig-paper-dashboard-v13";
+const CACHE_NAME = "craig-paper-dashboard-v14";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,19 +6,14 @@ const ASSETS = [
   "./app.js",
   "./manifest.webmanifest",
   "./icon.svg",
-  "./assets/fighters/licenses/public-license.txt",
-  "./assets/fighters/brawler-girl/idle.png",
-  "./assets/fighters/brawler-girl/walk.png",
-  "./assets/fighters/brawler-girl/jab.png",
-  "./assets/fighters/brawler-girl/punch.png",
-  "./assets/fighters/brawler-girl/kick.png",
-  "./assets/fighters/brawler-girl/hurt.png",
-  "./assets/fighters/enemy-punk/idle.png",
-  "./assets/fighters/enemy-punk/walk.png",
-  "./assets/fighters/enemy-punk/punch.png",
-  "./assets/fighters/enemy-punk/hurt.png",
-  "./assets/fighters/fx/queen.png",
-  "./assets/fighters/fx/fistbot.png",
+  "./fighter-arcade.gif",
+  "./fighter-armor.gif",
+  "./fighter-energy.gif",
+  "./fighter-mystic.gif",
+  "./fighter-rogue.gif",
+  "./fighter-idol.gif",
+  "./fighter-knight.gif",
+  "./fighter-oracle.gif",
   "./assets/fighters/fx/hitspark.png"
 ];
 

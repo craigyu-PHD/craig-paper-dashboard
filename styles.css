@@ -1636,57 +1636,52 @@ dialog::backdrop {
 
 .character-mixed {
   background-image:
-    url("assets/fighters/brawler-girl/idle.png"),
-    url("assets/fighters/enemy-punk/idle.png"),
-    url("assets/fighters/fx/queen.png"),
-    url("assets/fighters/fx/fistbot.png");
-  background-size: 76px 50px, 76px 50px, 64px 40px, 62px 42px;
-  background-position: left center, 38% center, 70% center, right center;
-}
-
-.character-brawler {
-  background-image: url("assets/fighters/brawler-girl/idle.png");
-  background-size: 82px 54px;
-}
-
-.character-punk {
-  background-image: url("assets/fighters/enemy-punk/idle.png");
-  background-size: 82px 54px;
+    url("fighter-arcade.gif"),
+    url("fighter-energy.gif"),
+    url("fighter-rogue.gif"),
+    url("fighter-oracle.gif");
+  background-size: 44px 44px, 44px 44px, 44px 44px, 44px 44px;
+  background-position: 0 center, 34% center, 68% center, right center;
 }
 
 .character-energy {
-  background-image: url("assets/fighters/ranger/SMS_Ranger_Idle_1_strip4.png");
-  background-size: 76px 38px;
+  background-image: url("fighter-energy.gif");
+  background-size: 58px 58px;
 }
 
 .character-arcade {
-  background-image: url("assets/fighters/renegade/Renegade_Idle_1_strip4.png");
-  background-size: 76px 38px;
+  background-image: url("fighter-arcade.gif");
+  background-size: 58px 58px;
 }
 
 .character-armor {
-  background-image: url("assets/fighters/soldier/NES_Soldier_Idle_1_strip4.png");
-  background-size: 76px 38px;
+  background-image: url("fighter-armor.gif");
+  background-size: 58px 58px;
 }
 
 .character-mystic {
-  background-image: url("assets/fighters/kungfu/GB_Kung_Fu_Man_Idle_EAST_strip4.png");
-  background-size: 76px 32px;
+  background-image: url("fighter-mystic.gif");
+  background-size: 58px 58px;
 }
 
-.character-gladiator {
-  background-image: url("assets/fighters/gladiator/Idle_East_StripSheet.png");
-  background-size: 76px 38px;
+.character-rogue {
+  background-image: url("fighter-rogue.gif");
+  background-size: 58px 58px;
 }
 
-.character-queen {
-  background-image: url("assets/fighters/fx/queen.png");
-  background-size: 96px 38px;
+.character-idol {
+  background-image: url("fighter-idol.gif");
+  background-size: 58px 58px;
 }
 
-.character-fistbot {
-  background-image: url("assets/fighters/fx/fistbot.png");
-  background-size: 86px 46px;
+.character-knight {
+  background-image: url("fighter-knight.gif");
+  background-size: 58px 58px;
+}
+
+.character-oracle {
+  background-image: url("fighter-oracle.gif");
+  background-size: 58px 58px;
 }
 
 .battle-mode-grid {

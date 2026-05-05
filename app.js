@@ -76,11 +76,15 @@ const LAYOUT_DEFS = [
 
 const CHARACTER_DEFS = [
   { id: "off", zh: "不要角色", desc: "保持純儀表板畫面。" },
-  { id: "mixed", zh: "精選格鬥混戰", desc: "較精緻的街機格鬥素材混戰。" },
-  { id: "brawler", zh: "街頭女拳手", desc: "Streets of Fight 玩家角色。" },
-  { id: "punk", zh: "龐克敵手", desc: "Streets of Fight 敵方角色。" },
-  { id: "queen", zh: "拳擊女王", desc: "Punching Queen 大尺寸動作。" },
-  { id: "fistbot", zh: "拳擊機器人", desc: "Beat em up graphics pack 拳套機器人。" }
+  { id: "mixed", zh: "精緻角色輪播", desc: "使用較細緻的原創角色素材混合巡邏。" },
+  { id: "arcade", zh: "街機劍客", desc: "亮色外套與長刀剪影。" },
+  { id: "energy", zh: "能量遊俠", desc: "藍白科技服與能量拳套。" },
+  { id: "armor", zh: "裝甲守衛", desc: "重裝面罩與金屬護甲。" },
+  { id: "mystic", zh: "秘術格鬥家", desc: "斗篷、光環與術式攻擊。" },
+  { id: "rogue", zh: "緋紅刺客", desc: "高機動紅黑短刃角色。" },
+  { id: "idol", zh: "星光拳手", desc: "亮粉舞台風與光束拳。" },
+  { id: "knight", zh: "白銀騎士", desc: "披風、鎧甲與重擊姿態。" },
+  { id: "oracle", zh: "靈能先知", desc: "紫金長袍與遠距能量。" }
 ];
 
 const BATTLE_MODE_DEFS = [
@@ -90,7 +94,7 @@ const BATTLE_MODE_DEFS = [
 ];
 
 const frameRange = (from, to) => Array.from({ length: to - from + 1 }, (_, index) => from + index);
-const FIGHTER_POOL = ["brawler", "punk", "queen", "fistbot"];
+const FIGHTER_POOL = ["arcade", "energy", "armor", "mystic", "rogue", "idol", "knight", "oracle"];
 const FIGHTER_META = {
   brawler: {
     name: "Brawler Girl",
@@ -267,6 +271,121 @@ const FIGHTER_META = {
     }
   }
 };
+const gifSprite = (src, fps = 12) => ({
+  idle: { src, w: 96, h: 96, frames: [0], fps },
+  walk: { src, w: 96, h: 96, frames: [0], fps },
+  strike: { src, w: 96, h: 96, frames: [0], fps },
+  blast: { src, w: 96, h: 96, frames: [0], fps },
+  hurt: { src, w: 96, h: 96, frames: [0], fps },
+  ko: { src, w: 96, h: 96, frames: [0], fps }
+});
+
+Object.assign(FIGHTER_META, {
+  arcade: {
+    name: "Blade Runner",
+    accent: "#ffcf33",
+    speed: 0.092,
+    reach: 58,
+    hp: 12,
+    strike: 1.8,
+    blast: 1.4,
+    knockback: 18,
+    scale: 0.76,
+    smooth: true,
+    sprites: gifSprite("fighter-arcade.gif")
+  },
+  energy: {
+    name: "Energy Ranger",
+    accent: "#35e8ff",
+    speed: 0.102,
+    reach: 62,
+    hp: 11,
+    strike: 1.5,
+    blast: 2,
+    knockback: 20,
+    scale: 0.76,
+    smooth: true,
+    sprites: gifSprite("fighter-energy.gif")
+  },
+  armor: {
+    name: "Chrome Guard",
+    accent: "#7df9ff",
+    speed: 0.074,
+    reach: 70,
+    hp: 16,
+    strike: 2.2,
+    blast: 1.5,
+    knockback: 24,
+    scale: 0.78,
+    smooth: true,
+    sprites: gifSprite("fighter-armor.gif", 10)
+  },
+  mystic: {
+    name: "Mystic Duelist",
+    accent: "#ff7df5",
+    speed: 0.108,
+    reach: 56,
+    hp: 10,
+    strike: 1.4,
+    blast: 2.2,
+    knockback: 19,
+    scale: 0.76,
+    smooth: true,
+    sprites: gifSprite("fighter-mystic.gif")
+  },
+  rogue: {
+    name: "Crimson Rogue",
+    accent: "#ff4d6d",
+    speed: 0.116,
+    reach: 52,
+    hp: 10,
+    strike: 1.7,
+    blast: 1.9,
+    knockback: 18,
+    scale: 0.76,
+    smooth: true,
+    sprites: gifSprite("fighter-rogue.gif", 13)
+  },
+  idol: {
+    name: "Starlight Boxer",
+    accent: "#ffd1f3",
+    speed: 0.1,
+    reach: 60,
+    hp: 11,
+    strike: 1.6,
+    blast: 2.1,
+    knockback: 19,
+    scale: 0.76,
+    smooth: true,
+    sprites: gifSprite("fighter-idol.gif", 13)
+  },
+  knight: {
+    name: "Silver Knight",
+    accent: "#bde0fe",
+    speed: 0.078,
+    reach: 72,
+    hp: 16,
+    strike: 2.3,
+    blast: 1.6,
+    knockback: 25,
+    scale: 0.78,
+    smooth: true,
+    sprites: gifSprite("fighter-knight.gif", 10)
+  },
+  oracle: {
+    name: "Violet Oracle",
+    accent: "#c77dff",
+    speed: 0.096,
+    reach: 66,
+    hp: 12,
+    strike: 1.5,
+    blast: 2.5,
+    knockback: 22,
+    scale: 0.76,
+    smooth: true,
+    sprites: gifSprite("fighter-oracle.gif", 12)
+  }
+});
 const ARENA_W = 736;
 const ARENA_H = 414;
 const INTERACTION_ZONES = [
@@ -289,7 +408,7 @@ const DEFAULT_PROFILES = [
     enabledTabs: ["weather", "calendar", "countdown", "notes", "rhythm", "system", "briefing"],
     location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: true },
     dataUrl: "",
-    battle: { enabled: false, count: 4, theme: "mixed", mode: "interactive" },
+    battle: { enabled: true, count: 4, theme: "mixed", mode: "interactive" },
     events: [
       { title: "晨間整理", start: "08:40", end: "09:10", where: "Craig Desk" },
       { title: "論文與寫作", start: "10:00", end: "12:00", where: "Secondbrain" },
@@ -329,7 +448,7 @@ const DEFAULT_PROFILES = [
     enabledTabs: ["weather", "calendar", "notes", "system"],
     location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: false },
     dataUrl: "",
-    battle: { enabled: false, count: 3, theme: "mixed", mode: "patrol" },
+    battle: { enabled: true, count: 4, theme: "mixed", mode: "patrol" },
     events: [
       { title: "團隊晨會", start: "09:30", end: "10:00", where: "Meeting" },
       { title: "專案檢查", start: "14:00", end: "15:00", where: "Workspace" },
@@ -523,7 +642,7 @@ function clamp(value, min, max) {
 function fighterLimit() {
   const lowPower = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
   const compact = Math.min(window.innerWidth, window.innerHeight) < 520;
-  return lowPower || compact ? 4 : 6;
+  return lowPower || compact ? 4 : 8;
 }
 
 function setScale() {
@@ -666,7 +785,7 @@ function renderWelcome() {
     </div>
     <div class="character-count">
       <label>角色數量
-        <input id="welcomeBattleCountInput" type="number" min="2" max="6" step="1" value="${Math.max(2, Math.min(6, Number(battle.count) || 3))}">
+        <input id="welcomeBattleCountInput" type="number" min="2" max="8" step="1" value="${Math.max(2, Math.min(8, Number(battle.count) || 3))}">
       </label>
     </div>
     <div class="battle-mode-grid">
@@ -731,7 +850,7 @@ function renderWelcome() {
         ...(activeProfile.battle || {}),
         enabled: character !== "off",
         theme: character === "off" ? "mixed" : character,
-        count: Math.max(2, Math.min(6, Number($("#welcomeBattleCountInput")?.value) || activeProfile.battle?.count || 3)),
+        count: Math.max(2, Math.min(8, Number($("#welcomeBattleCountInput")?.value) || activeProfile.battle?.count || 3)),
         mode: activeProfile.battle?.mode || "interactive"
       };
       updateActiveProfile();
@@ -756,7 +875,7 @@ function renderWelcome() {
   $("#welcomeBattleCountInput")?.addEventListener("change", (event) => {
     activeProfile.battle = {
       ...(activeProfile.battle || {}),
-      count: Math.max(2, Math.min(6, Number(event.target.value) || 3))
+      count: Math.max(2, Math.min(8, Number(event.target.value) || 3))
     };
     updateActiveProfile();
     renderArena();
@@ -1269,11 +1388,16 @@ function drawInteractionHints(ctx, now) {
 function stepArena(now) {
   if (!arenaState?.ctx) return;
   const elapsed = now - arenaState.last;
-  if (elapsed < 41) {
+  if (document.hidden) {
+    arenaState.last = now;
     arenaFrame = requestAnimationFrame(stepArena);
     return;
   }
-  const dt = Math.min(66, elapsed);
+  if (elapsed < 33) {
+    arenaFrame = requestAnimationFrame(stepArena);
+    return;
+  }
+  const dt = Math.min(50, elapsed);
   arenaState.last = now;
   for (const fighter of arenaState.fighters) updateFighter(fighter, arenaState.fighters, dt, now);
   const { ctx } = arenaState;
@@ -1717,7 +1841,7 @@ function setupConfig() {
     activeProfile.notes = collectNotes();
 	    activeProfile.battle = {
 	      enabled: $("#battleEnabledInput").checked,
-	      count: Math.max(2, Math.min(6, Number($("#battleCountInput").value) || 3)),
+	      count: Math.max(2, Math.min(8, Number($("#battleCountInput").value) || 3)),
 	      theme: $("#battleThemeInput").value || "mixed",
 	      mode: $("#battleModeInput").value || "interactive"
 	    };

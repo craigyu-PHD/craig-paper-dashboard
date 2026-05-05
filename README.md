@@ -19,8 +19,18 @@
 - 30 種風格：包含紙感、包浩斯、動漫、賽博、像素、平台冒險、合成波、蒸氣波、極光玻璃、粗野海報、瑞士網格、漫畫、機甲、星艦、咖啡、櫻花、北歐、太陽龐克、復古 CRT、藍圖等方向。
 - 螢幕保護：Dashboard 會定期微幅位移、亮度微調，並疊加慢速掃光，降低固定像素長時間停留。
 - 角色互動：可選桌面互動、循環對戰、陪伴巡邏；對戰結束會重新開局，不會只剩一名角色原地重複動作。
-- 素材來源：角色素材使用 OpenGameArt / Ansimuz `Streets of Fight` 與 `Beat em Up Graphics Pack`，目前只在選單露出較精緻的格鬥角色。
+- 角色素材：目前使用 8 個原創 96×96 動畫角色 GIF，避免缺檔與第三方素材授權混雜造成部署失敗。
 - 本機設定：目前資料存在瀏覽器 localStorage，不需要登入，也不會互相覆蓋。
+
+## 部署
+
+專案包含 GitHub Pages workflow：推送到 `main` 後會部署靜態網站。
+
+```bash
+git add .
+git commit -m "Update dashboard characters and GitHub Pages deploy"
+gh repo create craig-paper-dashboard --public --source=. --remote=origin --push
+```
 
 ## 第一版資料來源
 

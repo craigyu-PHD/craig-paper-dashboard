@@ -50,6 +50,50 @@ FIGHTERS = {
         "boot": "#1b0b2e",
         "aura": "#ff7df5",
     },
+    "rogue": {
+        "path": "fighter-rogue.gif",
+        "skin": "#f1b492",
+        "hair": "#220812",
+        "jacket": "#b1123a",
+        "pants": "#151725",
+        "trim": "#ff9fb2",
+        "glove": "#f7f0ef",
+        "boot": "#160d12",
+        "aura": "#ff4d6d",
+    },
+    "idol": {
+        "path": "fighter-idol.gif",
+        "skin": "#ffd3b6",
+        "hair": "#5c245a",
+        "jacket": "#ff6ec7",
+        "pants": "#3a0ca3",
+        "trim": "#fff1a8",
+        "glove": "#ffffff",
+        "boot": "#231942",
+        "aura": "#ffd1f3",
+    },
+    "knight": {
+        "path": "fighter-knight.gif",
+        "skin": "#e7edf6",
+        "hair": "#d8e2f0",
+        "jacket": "#9aa7bd",
+        "pants": "#34415a",
+        "trim": "#f5c542",
+        "glove": "#dbe7f6",
+        "boot": "#1d2738",
+        "aura": "#bde0fe",
+    },
+    "oracle": {
+        "path": "fighter-oracle.gif",
+        "skin": "#dfc2ff",
+        "hair": "#14051f",
+        "jacket": "#5a189a",
+        "pants": "#240046",
+        "trim": "#f4d35e",
+        "glove": "#e0aaff",
+        "boot": "#10002b",
+        "aura": "#c77dff",
+    },
 }
 
 
@@ -111,6 +155,25 @@ def draw_mystic_details(draw, spec, bob):
     draw.arc((23, 11 + bob, 64, 54 + bob), 210, 315, fill=spec["trim"], width=3)
 
 
+def draw_premium_details(draw, name, spec, bob, arm, kick):
+    if name == "rogue":
+        poly(draw, [(25, 29 + bob), (36, 21 + bob), (43, 55 + bob), (31, 64 + bob)], "#2b101b")
+        draw.line((62 + arm, 43 + bob, 81 + arm, 36 + bob), fill=spec["aura"], width=3)
+    elif name == "idol":
+        draw.arc((22, 16 + bob, 67, 61 + bob), 205, 330, fill=spec["trim"], width=4)
+        draw.ellipse((18, 17 + bob, 28, 27 + bob), fill=spec["trim"])
+        draw.ellipse((55, 12 + bob, 66, 23 + bob), fill=spec["aura"])
+    elif name == "knight":
+        draw.rounded_rectangle((34, 13 + bob, 57, 32 + bob), radius=4, fill="#0a0b12")
+        draw.rectangle((39, 20 + bob, 57, 24 + bob), fill=spec["aura"])
+        poly(draw, [(27, 35 + bob), (40, 30 + bob), (34, 68 + bob), (22, 72 + bob)], "#dbe7f6")
+        draw.line((59 + kick * 0.25, 37 + bob, 77 + kick * 0.25, 63 + bob), fill=spec["trim"], width=4)
+    elif name == "oracle":
+        poly(draw, [(28, 28 + bob), (46, 17 + bob), (65, 29 + bob), (58, 66 + bob), (29, 66 + bob)], spec["jacket"])
+        draw.ellipse((63 + arm * 0.25, 25 + bob, 78 + arm * 0.25, 40 + bob), outline=spec["aura"], width=3)
+        draw.arc((18, 10 + bob, 68, 66 + bob), 230, 315, fill=spec["trim"], width=3)
+
+
 def draw_frame(name, spec, pose):
     img = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
@@ -138,6 +201,7 @@ def draw_frame(name, spec, pose):
 
     if name == "mystic":
         draw_mystic_details(draw, spec, bob)
+    draw_premium_details(draw, name, spec, bob, arm, kick)
 
     draw.ellipse((34, 15 + bob, 54, 35 + bob), fill="#0a0b12")
     if name == "armor":
@@ -160,6 +224,23 @@ def draw_frame(name, spec, pose):
     return img
 
 
+def make_hitspark():
+    import os
+
+    os.makedirs("assets/fighters/fx", exist_ok=True)
+    img = Image.new("RGBA", (80, 39), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    for index in range(5):
+        ox = index * 16 + 8
+        radius = 4 + index * 2
+        color = (255, 232, 99, max(80, 230 - index * 26))
+        draw.line((ox - radius, 19, ox + radius, 19), fill=color, width=2)
+        draw.line((ox, 19 - radius, ox, 19 + radius), fill=color, width=2)
+        draw.line((ox - radius // 2, 19 - radius // 2, ox + radius // 2, 19 + radius // 2), fill=(255, 120, 80, 180), width=2)
+        draw.ellipse((ox - 2, 17, ox + 2, 21), fill=(255, 255, 255, 230))
+    img.save("assets/fighters/fx/hitspark.png")
+
+
 def main():
     for name, spec in FIGHTERS.items():
         frames = [draw_frame(name, spec, pose) for pose in POSES]
@@ -171,6 +252,7 @@ def main():
             loop=0,
             disposal=2,
         )
+    make_hitspark()
 
 
 if __name__ == "__main__":
