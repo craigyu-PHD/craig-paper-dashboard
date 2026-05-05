@@ -73,22 +73,24 @@ const LAYOUT_DEFS = [
 
 const CHARACTER_DEFS = [
   { id: "off", zh: "不要角色", desc: "保持純儀表板畫面。" },
-  { id: "mixed", zh: "齊打交小隊", desc: "四種原創角色混戰。" },
-  { id: "energy", zh: "冰氣少年", desc: "藍色氣功與遠距衝擊。" },
-  { id: "arcade", zh: "火拳格鬥家", desc: "近身連打與踢擊。" },
-  { id: "armor", zh: "裝甲隊長", desc: "重擊、盾衝與高防禦。" },
-  { id: "mystic", zh: "術法少年", desc: "紫色法術與範圍攻擊。" }
+  { id: "mixed", zh: "CC0 3D 混戰", desc: "Kenney CC0 3D 角色混戰。" },
+  { id: "energy", zh: "3D 遠攻型", desc: "3D 角色與遠距衝擊。" },
+  { id: "arcade", zh: "3D 近戰型", desc: "3D 角色近身連打。" },
+  { id: "armor", zh: "3D 重裝型", desc: "3D 角色重擊與高血量。" },
+  { id: "mystic", zh: "3D 技巧型", desc: "3D 角色高速牽制。" }
 ];
 
 const FIGHTER_POOL = ["energy", "arcade", "armor", "mystic"];
 const FIGHTER_META = {
-  energy: { accent: "#35e8ff", label: ["冰", "氣", "波", "瞬"], speed: 0.072, reach: 88 },
-  arcade: { accent: "#ffcf33", label: ["拳", "踢", "連", "爆"], speed: 0.082, reach: 62 },
-  armor: { accent: "#7df9ff", label: ["盾", "衝", "鋼", "破"], speed: 0.055, reach: 70 },
-  mystic: { accent: "#ff7df5", label: ["術", "星", "門", "幻"], speed: 0.064, reach: 96 }
+  energy: { accent: "#35e8ff", model: "assets/characters/character-a.glb", speed: 0.076, reach: 92, hp: 10, strike: 1.1, blast: 2.1, knockback: 19 },
+  arcade: { accent: "#ffcf33", model: "assets/characters/character-b.glb", speed: 0.088, reach: 58, hp: 12, strike: 1.7, blast: 1.2, knockback: 16 },
+  armor: { accent: "#7df9ff", model: "assets/characters/character-c.glb", speed: 0.06, reach: 66, hp: 15, strike: 2, blast: 1.4, knockback: 22 },
+  mystic: { accent: "#ff7df5", model: "assets/characters/character-d.glb", speed: 0.068, reach: 102, hp: 9, strike: 1, blast: 2.5, knockback: 20 }
 };
 const ARENA_W = 736;
 const ARENA_H = 414;
+const THREE_URL = "https://esm.sh/three@0.164.1";
+const GLTF_LOADER_URL = "https://esm.sh/three@0.164.1/examples/jsm/loaders/GLTFLoader.js";
 
 const DEFAULT_PROFILES = [
   {
@@ -162,7 +164,7 @@ let lastDateKey = "";
 let lastCalendarMinuteKey = "";
 let arenaFrame = null;
 let arenaState = null;
-const fighterImages = {};
+let threeKitPromise = null;
 
 function $(selector) {
   return document.querySelector(selector);
@@ -263,16 +265,6 @@ function fighterLimit() {
   return lowPower || compact ? 4 : 6;
 }
 
-function getFighterImage(type) {
-  if (!fighterImages[type]) {
-    const image = new Image();
-    image.decoding = "async";
-    image.src = `fighter-${type}.gif`;
-    fighterImages[type] = image;
-  }
-  return fighterImages[type];
-}
-
 function setScale() {
   const scale = Math.min(window.innerWidth / 736, window.innerHeight / 414);
   document.documentElement.style.setProperty("--scale", String(scale));
@@ -326,6 +318,29 @@ function tick() {
   renderProgress();
 }
 
+function layoutPreviewMarkup(layoutId) {
+  return `<span class="layout-preview layout-preview-${layoutId}" aria-hidden="true">
+    <i></i><b></b><em></em><u></u>
+  </span>`;
+}
+
+function updateWelcomeActiveStates() {
+  $all("[data-style]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.style === activeProfile.style);
+  });
+  $all("[data-layout]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.layout === activeProfile.layout);
+  });
+  $all("#pagePicker input").forEach((input) => {
+    input.closest(".page-option")?.classList.toggle("active", input.checked);
+  });
+  const battle = activeProfile.battle || {};
+  const characterMode = battle.enabled ? (battle.theme || "mixed") : "off";
+  $all("[data-character]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.character === characterMode);
+  });
+}
+
 function renderWelcome() {
   $("#identityCard").innerHTML = `<div>
     <span>${activeProfile.name || "未命名"}</span>
@@ -367,6 +382,7 @@ function renderWelcome() {
 
   $("#layoutGrid").innerHTML = LAYOUT_DEFS.map((layout) => (
     `<button class="layout-card${activeProfile.layout === layout.id ? " active" : ""}" data-layout="${layout.id}" type="button">
+      ${layoutPreviewMarkup(layout.id)}
       <strong>${layout.zh}</strong>
       <small>${layout.desc}</small>
     </button>`
@@ -403,9 +419,16 @@ function renderWelcome() {
     input.addEventListener("change", () => {
       const checked = $all("#pagePicker input:checked").map((item) => item.value);
       activeProfile.enabledTabs = checked.length ? checked : ["weather"];
+      if (!checked.length) {
+        const weatherInput = $('#pagePicker input[value="weather"]');
+        if (weatherInput) weatherInput.checked = true;
+      }
+      activeTabs = [...activeProfile.enabledTabs];
+      if (activeIndex >= activeTabs.length) activeIndex = 0;
       updateActiveProfile();
       renderTabs();
-      renderWelcome();
+      setPanel(activeIndex);
+      updateWelcomeActiveStates();
     });
   });
 
@@ -413,10 +436,10 @@ function renderWelcome() {
     button.addEventListener("click", () => {
       const style = getStyle(button.dataset.style);
       activeProfile.style = style.id;
-      activeProfile.layout = style.layout || activeProfile.layout || "classic";
+      activeProfile.layout = activeProfile.layout || style.layout || "classic";
       updateActiveProfile();
       applyTheme();
-      renderWelcome();
+      updateWelcomeActiveStates();
     });
   });
 
@@ -425,7 +448,7 @@ function renderWelcome() {
       activeProfile.layout = button.dataset.layout;
       updateActiveProfile();
       applyTheme();
-      renderWelcome();
+      updateWelcomeActiveStates();
     });
   });
 
@@ -440,7 +463,7 @@ function renderWelcome() {
       };
       updateActiveProfile();
       renderArena();
-      renderWelcome();
+      updateWelcomeActiveStates();
     });
   });
 
@@ -451,7 +474,7 @@ function renderWelcome() {
     };
     updateActiveProfile();
     renderArena();
-    renderWelcome();
+    updateWelcomeActiveStates();
   });
 }
 
@@ -528,15 +551,88 @@ function renderTabs() {
 
 function stopArena() {
   if (arenaFrame) cancelAnimationFrame(arenaFrame);
+  if (arenaState?.renderer) {
+    arenaState.renderer.dispose();
+    arenaState.renderer.forceContextLoss?.();
+  }
   arenaFrame = null;
   arenaState = null;
   $("#arenaLayer").innerHTML = "";
 }
 
-function createFighter(index, theme) {
+function loadThreeKit() {
+  if (!threeKitPromise) {
+    threeKitPromise = Promise.all([
+      import(THREE_URL),
+      import(GLTF_LOADER_URL)
+    ]).then(([THREE, loaderModule]) => ({
+      THREE,
+      GLTFLoader: loaderModule.GLTFLoader
+    }));
+  }
+  return threeKitPromise;
+}
+
+function screenToWorld(x, y) {
+  return {
+    x: (x / ARENA_W - 0.5) * 10.8,
+    z: (y / ARENA_H - 0.5) * 5.8
+  };
+}
+
+function actionPreference(type) {
+  return FIGHTER_META[type].reach * 0.68;
+}
+
+function setModelOpacity(object, opacity) {
+  object.traverse((child) => {
+    if (!child.isMesh || !child.material) return;
+    child.material.opacity = opacity;
+    child.material.transparent = opacity < 1;
+  });
+}
+
+function clipAction(fighter, name) {
+  if (!fighter.actions) return null;
+  return fighter.actions.get(name) || fighter.actions.get("idle") || fighter.actions.values().next().value || null;
+}
+
+function playFighterAnimation(fighter, name, key = name) {
+  if (!fighter.mixer || !fighter.actions || fighter.animationKey === key) return;
+  const next = clipAction(fighter, name);
+  if (!next) return;
+  const previous = fighter.currentAnimation ? clipAction(fighter, fighter.currentAnimation) : null;
+
+  next.enabled = true;
+  next.paused = false;
+  next.clampWhenFinished = name === "die";
+  next.reset().play();
+  if (previous && previous !== next) previous.crossFadeTo(next, 0.1, false);
+
+  fighter.currentAnimation = name;
+  fighter.animationKey = key;
+}
+
+function animationNameForFighter(fighter, now) {
+  if (!fighter.alive) return { name: "die", key: `die-${fighter.hitStarted}` };
+  if (arenaState?.winnerId === fighter.id && livingFighters(arenaState.fighters).length === 1) {
+    return { name: "emote-yes", key: "winner" };
+  }
+  if (now < fighter.hitUntil) return { name: "emote-no", key: `hurt-${fighter.hitStarted}` };
+  if (now < fighter.actionUntil) {
+    if (fighter.state === "blast") return { name: "holding-both-shoot", key: `blast-${fighter.actionStarted}` };
+    return { name: fighter.face >= 0 ? "attack-melee-right" : "attack-melee-left", key: `strike-${fighter.actionStarted}` };
+  }
+  if (Math.hypot(fighter.vx, fighter.vy) > 0.32) return { name: "walk", key: "walk" };
+  return { name: "idle", key: "idle" };
+}
+
+function createFighter(index, theme, count) {
   const type = theme === "mixed" ? FIGHTER_POOL[index % FIGHTER_POOL.length] : theme;
-  const x = randomBetween(80, ARENA_W - 80);
-  const y = randomBetween(78, ARENA_H - 56);
+  const meta = FIGHTER_META[type];
+  const lane = index / Math.max(1, count - 1);
+  const x = 86 + lane * (ARENA_W - 172);
+  const y = randomBetween(116, ARENA_H - 54);
   return {
     id: index,
     type,
@@ -545,36 +641,138 @@ function createFighter(index, theme) {
     vx: 0,
     vy: 0,
     face: index % 2 ? -1 : 1,
-    targetX: randomBetween(70, ARENA_W - 70),
-    targetY: randomBetween(80, ARENA_H - 58),
+    targetX: ARENA_W / 2,
+    targetY: ARENA_H / 2,
     state: "walk",
+    actionStarted: 0,
     actionUntil: 0,
-    cooldown: randomBetween(300, 1200),
+    cooldown: randomBetween(420, 980),
+    frameOffset: randomBetween(0, 400),
+    hitStarted: 0,
     hitUntil: 0,
-    labelUntil: 0,
-    label: FIGHTER_META[type].label[index % FIGHTER_META[type].label.length],
-    hp: 5
+    exitUntil: 0,
+    alive: true,
+    hp: meta.hp,
+    maxHp: meta.hp,
+    object: null,
+    effect: null,
+    ring: null,
+    mixer: null,
+    actions: null,
+    currentAnimation: "",
+    animationKey: ""
   };
 }
 
-function startArena(count, theme) {
-  const arena = $("#arenaLayer");
-  const canvas = document.createElement("canvas");
-  canvas.className = "arena-canvas";
-  canvas.width = ARENA_W;
-  canvas.height = ARENA_H;
-  arena.innerHTML = "";
-  arena.appendChild(canvas);
+async function attachFighterModel(state, fighter) {
+  const { THREE, loader, scene } = state;
+  const meta = FIGHTER_META[fighter.type];
+  const gltf = await loader.loadAsync(meta.model);
+  if (arenaState !== state) return;
 
-  const ctx = canvas.getContext("2d", { alpha: true });
+  const object = gltf.scene;
+  object.scale.setScalar(1.34);
+  object.traverse((child) => {
+    if (!child.isMesh) return;
+    child.castShadow = false;
+    child.receiveShadow = false;
+    if (child.material) {
+      child.material = child.material.clone();
+      child.material.transparent = true;
+      child.material.opacity = 1;
+    }
+  });
+  scene.add(object);
+
+  const effect = new THREE.Mesh(
+    new THREE.SphereGeometry(0.24, 18, 12),
+    new THREE.MeshBasicMaterial({ color: meta.accent, transparent: true, opacity: 0 })
+  );
+  effect.visible = false;
+  scene.add(effect);
+
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.54, 0.025, 8, 42),
+    new THREE.MeshBasicMaterial({ color: meta.accent, transparent: true, opacity: 0.62 })
+  );
+  ring.rotation.x = Math.PI / 2;
+  scene.add(ring);
+
+  fighter.object = object;
+  fighter.effect = effect;
+  fighter.ring = ring;
+  if (gltf.animations?.length) {
+    fighter.mixer = new THREE.AnimationMixer(object);
+    fighter.actions = new Map(gltf.animations.map((clip) => [clip.name, fighter.mixer.clipAction(clip)]));
+    playFighterAnimation(fighter, "idle");
+  }
+  syncFighterObject(fighter, performance.now(), 16);
+}
+
+async function startArena(count, theme) {
+  const arena = $("#arenaLayer");
+  const token = Symbol("arena");
+  arena.innerHTML = "";
   arenaState = {
+    token,
     key: `${count}-${theme}`,
-    canvas,
-    ctx,
+    renderer: null,
+    scene: null,
+    camera: null,
+    loader: null,
+    THREE: null,
     last: performance.now(),
-    fighters: Array.from({ length: count }, (_, index) => createFighter(index, theme))
+    winnerId: null,
+    finishedAt: 0,
+    fighters: Array.from({ length: count }, (_, index) => createFighter(index, theme, count))
   };
-  for (const fighter of arenaState.fighters) getFighterImage(fighter.type);
+
+  const state = arenaState;
+  const { THREE, GLTFLoader } = await loadThreeKit();
+  if (arenaState !== state || state.token !== token) return;
+
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: "low-power" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setSize(ARENA_W, ARENA_H, false);
+  renderer.domElement.className = "arena-canvas";
+  if (THREE.SRGBColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
+  arena.innerHTML = "";
+  arena.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, ARENA_W / ARENA_H, 0.1, 60);
+  camera.position.set(0, 5.6, 10.8);
+  camera.lookAt(0, 0.8, 0);
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x25242a, 1.9));
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+  keyLight.position.set(3.4, 7, 5);
+  scene.add(keyLight);
+
+  const floor = new THREE.Mesh(
+    new THREE.CircleGeometry(6.4, 48),
+    new THREE.MeshBasicMaterial({ color: 0x111116, transparent: true, opacity: 0.12 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.02;
+  scene.add(floor);
+
+  const manager = new THREE.LoadingManager();
+  manager.setURLModifier((url) => {
+    const file = url.split("/").pop();
+    if (/^texture-[a-f]\.png$/i.test(file)) return `assets/characters/Textures/${file}`;
+    return url;
+  });
+
+  state.THREE = THREE;
+  state.renderer = renderer;
+  state.scene = scene;
+  state.camera = camera;
+  state.loader = new GLTFLoader(manager);
+  state.loader.setResourcePath("assets/characters/Textures/");
+  await Promise.all(state.fighters.map((fighter) => attachFighterModel(state, fighter)));
+  if (arenaState !== state || state.token !== token) return;
+  state.last = performance.now();
   arenaFrame = requestAnimationFrame(stepArena);
 }
 
@@ -582,7 +780,7 @@ function nearestOpponent(fighter, fighters) {
   let best = null;
   let bestDistance = Infinity;
   for (const candidate of fighters) {
-    if (candidate.id === fighter.id) continue;
+    if (candidate.id === fighter.id || !candidate.alive) continue;
     const dx = candidate.x - fighter.x;
     const dy = candidate.y - fighter.y;
     const distance = Math.hypot(dx, dy);
@@ -594,119 +792,163 @@ function nearestOpponent(fighter, fighters) {
   return { target: best, distance: bestDistance };
 }
 
-function chooseRoamTarget(fighter) {
-  fighter.targetX = randomBetween(56, ARENA_W - 56);
-  fighter.targetY = randomBetween(76, ARENA_H - 48);
+function livingFighters(fighters) {
+  return fighters.filter((fighter) => fighter.alive);
+}
+
+function eliminateFighter(fighter, now, angle) {
+  fighter.alive = false;
+  fighter.state = "ko";
+  fighter.actionStarted = now;
+  fighter.actionUntil = now + 640;
+  fighter.exitUntil = now + 640;
+  fighter.hitStarted = now;
+  fighter.hitUntil = now + 640;
+  fighter.vx = Math.cos(angle) * 18;
+  fighter.vy = Math.sin(angle) * 9;
 }
 
 function updateFighter(fighter, fighters, dt, now) {
+  if (!fighter.alive) {
+    fighter.vx *= 0.86;
+    fighter.vy *= 0.86;
+    fighter.x = clamp(fighter.x + fighter.vx, 32, ARENA_W - 32);
+    fighter.y = clamp(fighter.y + fighter.vy, 74, ARENA_H - 22);
+    return;
+  }
+
   const meta = FIGHTER_META[fighter.type];
+  const living = livingFighters(fighters);
+  if (living.length <= 1) {
+    arenaState.winnerId = fighter.id;
+    if (!arenaState.finishedAt) arenaState.finishedAt = now;
+    fighter.state = "walk";
+    fighter.vx *= 0.74;
+    fighter.vy *= 0.74;
+    return;
+  }
+
   fighter.cooldown = Math.max(0, fighter.cooldown - dt);
   const acting = now < fighter.actionUntil;
   const { target, distance } = nearestOpponent(fighter, fighters);
+  if (!target) return;
 
-  if (target && !acting && distance < meta.reach && fighter.cooldown <= 0) {
+  if (!acting && distance < meta.reach && fighter.cooldown <= 0) {
     const action = Math.random() > 0.42 ? "strike" : "blast";
     fighter.state = action;
+    fighter.actionStarted = now;
     fighter.actionUntil = now + (action === "blast" ? 520 : 360);
-    fighter.cooldown = randomBetween(820, 1600);
-    fighter.label = meta.label[Math.floor(Math.random() * meta.label.length)];
-    fighter.labelUntil = now + 520;
+    fighter.cooldown = randomBetween(620, 1220);
     fighter.face = target.x >= fighter.x ? 1 : -1;
 
-    const force = action === "blast" ? 26 : 15;
+    const damage = action === "blast" ? meta.blast : meta.strike;
+    const force = action === "blast" ? meta.knockback * 1.3 : meta.knockback;
     const angle = Math.atan2(target.y - fighter.y, target.x - fighter.x);
     target.vx += Math.cos(angle) * force;
-    target.vy += Math.sin(angle) * force;
+    target.vy += Math.sin(angle) * force * 0.58;
+    target.state = "hurt";
+    target.hitStarted = now;
     target.hitUntil = now + 260;
-    target.hp -= action === "blast" ? 2 : 1;
+    target.hp = Math.max(0, target.hp - damage);
     if (target.hp <= 0) {
-      target.hp = 5;
-      target.x = randomBetween(80, ARENA_W - 80);
-      target.y = randomBetween(78, ARENA_H - 56);
-      chooseRoamTarget(target);
+      eliminateFighter(target, now, angle);
     }
     return;
   }
 
-  if (target && distance < 190) {
-    fighter.targetX = target.x - Math.sign(target.x - fighter.x || 1) * randomBetween(48, 82);
-    fighter.targetY = target.y + randomBetween(-38, 38);
-  } else if (Math.hypot(fighter.targetX - fighter.x, fighter.targetY - fighter.y) < 18 || Math.random() < 0.006) {
-    chooseRoamTarget(fighter);
-  }
+  const side = target.x >= fighter.x ? -1 : 1;
+  const preferred = actionPreference(fighter.type);
+  fighter.targetX = target.x + side * preferred;
+  fighter.targetY = target.y + Math.sin(now / 520 + fighter.id) * 22;
+
+  if (distance < 36) fighter.targetX = fighter.x - side * 42;
 
   const dx = fighter.targetX - fighter.x;
   const dy = fighter.targetY - fighter.y;
   const distanceToTarget = Math.max(1, Math.hypot(dx, dy));
-  const speed = meta.speed * dt;
+  const speed = meta.speed * dt * (acting ? 0.35 : 1);
   fighter.vx += (dx / distanceToTarget) * speed;
   fighter.vy += (dy / distanceToTarget) * speed;
-  fighter.vx *= 0.82;
-  fighter.vy *= 0.82;
+  fighter.vx *= 0.78;
+  fighter.vy *= 0.78;
   fighter.x = clamp(fighter.x + fighter.vx, 40, ARENA_W - 48);
   fighter.y = clamp(fighter.y + fighter.vy, 64, ARENA_H - 28);
   if (Math.abs(fighter.vx) > 0.04) fighter.face = fighter.vx > 0 ? 1 : -1;
-  if (!acting) fighter.state = "walk";
+  if (!acting && now > fighter.hitUntil) fighter.state = "walk";
 }
 
-function drawFighter(ctx, fighter, now) {
-  const meta = FIGHTER_META[fighter.type];
-  const image = getFighterImage(fighter.type);
+function syncFighterObject(fighter, now, dt) {
+  if (!fighter.object) return;
+  const world = screenToWorld(fighter.x, fighter.y);
+  const object = fighter.object;
+  const living = arenaState ? livingFighters(arenaState.fighters) : [];
+  const opponent = fighter.alive ? nearestOpponent(fighter, arenaState.fighters).target : null;
   const acting = now < fighter.actionUntil;
   const hit = now < fighter.hitUntil;
-  const label = now < fighter.labelUntil;
-  const bob = Math.sin(now / 110 + fighter.id) * 2;
+  const actionDuration = Math.max(1, fighter.actionUntil - fighter.actionStarted);
+  const actionT = clamp((now - fighter.actionStarted) / actionDuration, 0, 1);
+  const pulse = Math.sin(now / 120 + fighter.id);
+  const defeatedFade = fighter.alive ? 1 : clamp((fighter.exitUntil - now) / 640, 0, 1);
 
-  ctx.save();
-  ctx.translate(fighter.x, fighter.y);
-  ctx.scale(fighter.face, 1);
-  ctx.globalAlpha = 0.26;
-  ctx.fillStyle = "#000";
-  ctx.beginPath();
-  ctx.ellipse(0, 18, 28, 7, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  object.visible = fighter.alive || defeatedFade > 0.02;
+  object.position.set(world.x, fighter.alive ? Math.max(0, pulse * 0.035) : (1 - defeatedFade) * 0.22, world.z);
+  object.rotation.set(0, object.rotation.y, 0);
+  object.scale.setScalar(1.34);
+  setModelOpacity(object, defeatedFade);
 
-  if (acting) {
-    ctx.strokeStyle = meta.accent;
-    ctx.lineWidth = 3;
-    ctx.globalAlpha = 0.72;
-    ctx.beginPath();
-    ctx.arc(28, -26, fighter.state === "blast" ? 21 : 12, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+  if (opponent) {
+    const targetWorld = screenToWorld(opponent.x, opponent.y);
+    object.rotation.y = Math.atan2(targetWorld.x - world.x, targetWorld.z - world.z);
   }
 
-  if (image.complete) ctx.drawImage(image, -48, -78 + bob, 96, 96);
-  if (hit) {
-    ctx.globalCompositeOperation = "source-atop";
-    ctx.fillStyle = "rgba(255,255,255,0.44)";
-    ctx.fillRect(-48, -78, 96, 96);
-    ctx.globalCompositeOperation = "source-over";
+  if (!fighter.alive) {
+    object.rotation.z = fighter.face * 1.22 * (1 - defeatedFade);
+    object.scale.setScalar(1.34 * (0.72 + defeatedFade * 0.28));
+  } else if (hit) {
+    object.rotation.x = -0.22;
+    object.rotation.z = -fighter.face * 0.28;
+  } else if (acting && fighter.state === "strike") {
+    const snap = Math.sin(actionT * Math.PI);
+    object.position.x += fighter.face * snap * 0.16;
+    object.rotation.z = -fighter.face * snap * 0.42;
+    object.scale.set(1.34 + snap * 0.08, 1.34 - snap * 0.05, 1.34 + snap * 0.08);
+  } else if (acting && fighter.state === "blast") {
+    const snap = Math.sin(actionT * Math.PI);
+    object.position.y += snap * 0.2;
+    object.rotation.y += fighter.face * snap * 0.35;
+  } else if (arenaState?.winnerId === fighter.id && living.length === 1) {
+    object.position.y += Math.max(0, pulse) * 0.18;
+    object.rotation.y += pulse * 0.06;
   }
-  ctx.restore();
 
-  ctx.fillStyle = "rgba(0,0,0,0.34)";
-  ctx.fillRect(fighter.x - 18, fighter.y + 24, 36, 3);
-  ctx.fillStyle = meta.accent;
-  ctx.fillRect(fighter.x - 18, fighter.y + 24, 36 * (fighter.hp / 5), 3);
-
-  if (label) {
-    ctx.save();
-    ctx.fillStyle = meta.accent;
-    ctx.strokeStyle = "#101014";
-    ctx.lineWidth = 3;
-    ctx.font = "700 14px sans-serif";
-    ctx.textAlign = "center";
-    ctx.strokeText(fighter.label, fighter.x, fighter.y - 72);
-    ctx.fillText(fighter.label, fighter.x, fighter.y - 72);
-    ctx.restore();
+  if (fighter.mixer) fighter.mixer.update(dt / 1000);
+  const animation = animationNameForFighter(fighter, now);
+  playFighterAnimation(fighter, animation.name, animation.key);
+  if (fighter.ring) {
+    fighter.ring.visible = fighter.alive;
+    fighter.ring.position.set(world.x, 0.015, world.z);
+    const health = fighter.hp / fighter.maxHp;
+    fighter.ring.scale.setScalar(0.76 + health * 0.36);
+    fighter.ring.material.opacity = arenaState?.winnerId === fighter.id ? 0.92 : 0.34 + health * 0.32;
+  }
+  if (fighter.effect) {
+    const visible = acting && fighter.alive;
+    fighter.effect.visible = visible;
+    if (visible) {
+      const snap = Math.sin(actionT * Math.PI);
+      fighter.effect.position.set(
+        world.x + Math.sin(object.rotation.y) * (0.52 + actionT * 0.72),
+        1.12 + snap * 0.18,
+        world.z + Math.cos(object.rotation.y) * (0.52 + actionT * 0.72)
+      );
+      fighter.effect.scale.setScalar(fighter.state === "blast" ? 1.15 + actionT * 1.8 : 0.72 + snap * 0.72);
+      fighter.effect.material.opacity = fighter.state === "blast" ? 0.62 * (1 - actionT * 0.35) : 0.5 * snap;
+    }
   }
 }
 
 function stepArena(now) {
-  if (!arenaState) return;
+  if (!arenaState?.renderer) return;
   const elapsed = now - arenaState.last;
   if (elapsed < 33) {
     arenaFrame = requestAnimationFrame(stepArena);
@@ -715,9 +957,8 @@ function stepArena(now) {
   const dt = Math.min(66, elapsed);
   arenaState.last = now;
   for (const fighter of arenaState.fighters) updateFighter(fighter, arenaState.fighters, dt, now);
-  const { ctx } = arenaState;
-  ctx.clearRect(0, 0, ARENA_W, ARENA_H);
-  [...arenaState.fighters].sort((a, b) => a.y - b.y).forEach((fighter) => drawFighter(ctx, fighter, now));
+  for (const fighter of arenaState.fighters) syncFighterObject(fighter, now, dt);
+  arenaState.renderer.render(arenaState.scene, arenaState.camera);
   arenaFrame = requestAnimationFrame(stepArena);
 }
 
@@ -735,8 +976,12 @@ function renderArena() {
   const theme = battle.theme || "mixed";
   const key = `${count}-${theme}`;
   if (arenaState?.key === key) return;
-  if (arenaFrame) cancelAnimationFrame(arenaFrame);
-  startArena(count, theme);
+  stopArena();
+  arena.classList.add("active");
+  startArena(count, theme).catch((error) => {
+    console.error("Dashboard 3D arena failed", error);
+    if (arenaState?.key === key) stopArena();
+  });
 }
 
 function weatherLabel(code) {

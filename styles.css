@@ -1084,11 +1084,11 @@ dialog::backdrop {
 }
 
 .welcome-shell {
-  width: min(1180px, 100%);
+  width: min(1480px, 100%);
   min-height: calc(100vh - 48px);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 300px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -1135,6 +1135,8 @@ dialog::backdrop {
   background: var(--paper);
   padding: 18px;
   box-shadow: 0 18px 52px rgba(0, 0, 0, 0.22);
+  content-visibility: auto;
+  contain-intrinsic-size: 240px;
 }
 
 .identity-card {
@@ -1312,24 +1314,101 @@ dialog::backdrop {
 
 .style-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
 .layout-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
 }
 
 .layout-card {
-  min-height: 92px;
+  min-height: 152px;
   border: 1px solid var(--line);
   background: transparent;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
-  padding: 14px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.layout-preview {
+  display: grid;
+  width: 100%;
+  height: 72px;
+  margin-bottom: 12px;
+  gap: 5px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.18), transparent),
+    var(--paper-deep);
+  padding: 8px;
+}
+
+.layout-preview > * {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  background: var(--stamp);
+  opacity: 0.88;
+}
+
+.layout-preview b {
+  background: var(--ink);
+  opacity: 0.72;
+}
+
+.layout-preview em {
+  background: var(--line);
+}
+
+.layout-preview u {
+  background: var(--green);
+  text-decoration: none;
+}
+
+.layout-preview-classic {
+  grid-template: "a b" 1fr "c d" 1fr / 1.1fr 0.9fr;
+}
+
+.layout-preview-clock-max {
+  grid-template: "a a" 1.3fr "b c" 0.7fr / 1fr 1fr;
+}
+
+.layout-preview-dense {
+  grid-template: "a b c" 1fr "d d c" 1fr / 1fr 1fr 0.8fr;
+}
+
+.layout-preview-calm {
+  grid-template: ". a ." 1fr ". b ." 1fr / 0.5fr 1fr 0.5fr;
+}
+
+.layout-preview-bento {
+  grid-template: "a a b" 1fr "c d b" 1fr / 1fr 0.8fr 1fr;
+}
+
+.layout-preview-command {
+  grid-template: "a a a" 0.55fr "b c d" 1.45fr / 1fr 1fr 1fr;
+}
+
+.layout-preview-magazine {
+  grid-template: "a a" 0.45fr "b c" 1.55fr / 1fr 1fr;
+}
+
+.layout-preview-poster {
+  grid-template: ". a ." 1.25fr ". b ." 0.75fr / 0.35fr 1fr 0.35fr;
+}
+
+.layout-preview-arcade {
+  grid-template: "a b c" 0.55fr "d d d" 1.45fr / 1fr 1fr 1fr;
+  image-rendering: pixelated;
+}
+
+.layout-preview-split {
+  grid-template: "a b" 1fr "a c" 1fr / 0.9fr 1.1fr;
 }
 
 .layout-card strong,
@@ -1466,15 +1545,15 @@ dialog::backdrop {
 }
 
 .character-mixed {
-  background-image: url("fighter-energy.gif"), url("fighter-arcade.gif");
+  background-image: url("assets/characters/character-a.png"), url("assets/characters/character-b.png");
   background-size: 48px 48px, 42px 42px;
   background-position: left center, right center;
 }
 
-.character-energy { background-image: url("fighter-energy.gif"); }
-.character-arcade { background-image: url("fighter-arcade.gif"); }
-.character-armor { background-image: url("fighter-armor.gif"); }
-.character-mystic { background-image: url("fighter-mystic.gif"); }
+.character-energy { background-image: url("assets/characters/character-a.png"); }
+.character-arcade { background-image: url("assets/characters/character-b.png"); }
+.character-armor { background-image: url("assets/characters/character-c.png"); }
+.character-mystic { background-image: url("assets/characters/character-d.png"); }
 
 .character-count {
   width: min(220px, 100%);
@@ -1943,15 +2022,7 @@ body[data-style-family="blueprint"] #device::before {
 
 @media (orientation: portrait) and (max-width: 920px) {
   #wrap::after {
-    content: "建議將裝置橫放";
-    position: fixed;
-    left: 50%;
-    bottom: 28px;
-    transform: translateX(-50%);
-    color: rgba(245, 239, 222, 0.76);
-    font-size: 13px;
-    letter-spacing: 0.28em;
-    white-space: nowrap;
+    content: none;
   }
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "craig-paper-dashboard-v10";
+const CACHE_NAME = "craig-paper-dashboard-v11";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,10 +6,31 @@ const ASSETS = [
   "./app.js",
   "./manifest.webmanifest",
   "./icon.svg",
-  "./fighter-energy.gif",
-  "./fighter-arcade.gif",
-  "./fighter-armor.gif",
-  "./fighter-mystic.gif"
+  "./assets/characters/License.txt",
+  "./assets/characters/character-a.glb",
+  "./assets/characters/character-b.glb",
+  "./assets/characters/character-c.glb",
+  "./assets/characters/character-d.glb",
+  "./assets/characters/character-e.glb",
+  "./assets/characters/character-f.glb",
+  "./assets/characters/character-a.png",
+  "./assets/characters/character-b.png",
+  "./assets/characters/character-c.png",
+  "./assets/characters/character-d.png",
+  "./assets/characters/character-e.png",
+  "./assets/characters/character-f.png",
+  "./assets/characters/Textures/texture-a.png",
+  "./assets/characters/Textures/texture-b.png",
+  "./assets/characters/Textures/texture-c.png",
+  "./assets/characters/Textures/texture-d.png",
+  "./assets/characters/Textures/texture-e.png",
+  "./assets/characters/Textures/texture-f.png",
+  "./Textures/texture-a.png",
+  "./Textures/texture-b.png",
+  "./Textures/texture-c.png",
+  "./Textures/texture-d.png",
+  "./Textures/texture-e.png",
+  "./Textures/texture-f.png"
 ];
 
 self.addEventListener("install", (event) => {
