@@ -14,7 +14,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=13">
 </head>
 <body>
   <main id="wrap" aria-label="personal dashboard">
@@ -22,8 +22,8 @@
       <div class="welcome-shell">
         <div class="welcome-copy">
           <p class="eyebrow">PERSONAL DASHBOARD</p>
-          <h1>我是誰，我想看什麼</h1>
-          <p>這個 Dashboard 會先記住使用者是誰，再依照設定檔呈現頁面、行程、倒數日、焦點與視覺風格。</p>
+          <h1>把今天安放在眼前</h1>
+          <p>先記住使用者的名字與節奏，再把時間、天氣、行程、提醒與風格收束成一個可以長時間陪伴的桌面。</p>
         </div>
 
         <div class="welcome-controls">
@@ -168,6 +168,30 @@
             </div>
             <div class="note-board" id="noteBoard"></div>
           </article>
+
+          <article class="tab-panel" data-panel="rhythm">
+            <div class="panel-head">
+              <h1 class="panel-title">節　奏</h1>
+              <p class="panel-title-en">RHYTHM · ROUTINE</p>
+            </div>
+            <div class="rhythm-board" id="rhythmBoard"></div>
+          </article>
+
+          <article class="tab-panel" data-panel="system">
+            <div class="panel-head">
+              <h1 class="panel-title">系　統</h1>
+              <p class="panel-title-en">DEVICE · STATUS</p>
+            </div>
+            <div class="system-grid" id="systemGrid"></div>
+          </article>
+
+          <article class="tab-panel" data-panel="briefing">
+            <div class="panel-head">
+              <h1 class="panel-title">簡　報</h1>
+              <p class="panel-title-en">DAILY · BRIEF</p>
+            </div>
+            <div class="briefing-list" id="briefingList"></div>
+          </article>
         </section>
 
         <footer class="footer">
@@ -256,11 +280,19 @@
         <label>
           角色風格
           <select id="battleThemeInput">
-            <option value="mixed">CC0 3D 混戰</option>
-            <option value="arcade">3D 近戰型</option>
-            <option value="energy">3D 遠攻型</option>
-            <option value="armor">3D 重裝型</option>
-            <option value="mystic">3D 技巧型</option>
+            <option value="mixed">格鬥素材混戰</option>
+            <option value="brawler">街頭女拳手</option>
+            <option value="punk">龐克敵手</option>
+            <option value="queen">拳擊女王</option>
+            <option value="fistbot">拳擊機器人</option>
+          </select>
+        </label>
+        <label>
+          角色模式
+          <select id="battleModeInput">
+            <option value="interactive">桌面互動</option>
+            <option value="spar">循環對戰</option>
+            <option value="patrol">陪伴巡邏</option>
           </select>
         </label>
       </div>
@@ -271,6 +303,6 @@
     </form>
   </dialog>
 
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

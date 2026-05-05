@@ -667,6 +667,88 @@ select {
   letter-spacing: 0.08em;
 }
 
+.rhythm-board,
+.system-grid,
+.briefing-list {
+  display: grid;
+  gap: 12px;
+}
+
+.rhythm-board {
+  grid-template-columns: repeat(3, 1fr);
+  padding-top: 12px;
+}
+
+.rhythm-card,
+.system-card,
+.briefing-item {
+  border: 1px solid var(--line);
+  background: var(--panel-fill);
+  padding: 13px 14px;
+}
+
+.rhythm-card span,
+.system-card span,
+.briefing-item span {
+  display: block;
+  color: var(--stamp);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-style: italic;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.rhythm-card strong,
+.system-card strong {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-clock);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.rhythm-card h2 {
+  margin: 10px 0 4px;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+}
+
+.rhythm-card p,
+.system-card p,
+.briefing-item p {
+  margin: 6px 0 0;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.65;
+  letter-spacing: 0.08em;
+}
+
+.system-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-top: 14px;
+}
+
+.system-card strong {
+  font-size: 22px;
+}
+
+.briefing-list {
+  padding-top: 14px;
+}
+
+.briefing-item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: start;
+}
+
+.briefing-item p {
+  margin-top: 0;
+  color: var(--ink);
+  font-size: 13px;
+}
+
 .empty-state {
   color: var(--ink-soft);
   font-size: 14px;
@@ -1073,9 +1155,11 @@ dialog::backdrop {
   overflow: auto;
   padding: 24px;
   background:
-    radial-gradient(ellipse at 20% 0%, var(--glow), transparent 42%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 100%),
+    linear-gradient(135deg, var(--glow), transparent 38%),
     linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.32)),
     var(--outer);
+  background-size: 24px 24px, 100% 100%, 100% 100%, 100% 100%;
   color: var(--ink);
 }
 
@@ -1097,6 +1181,10 @@ dialog::backdrop {
   position: sticky;
   top: 24px;
   color: #f5efde;
+  min-height: calc(100vh - 72px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .welcome-copy .eyebrow {
@@ -1110,10 +1198,10 @@ dialog::backdrop {
 
 .welcome-copy h1 {
   margin: 0;
-  max-width: 280px;
-  font-size: 34px;
-  line-height: 1.18;
-  letter-spacing: 0.04em;
+  max-width: 300px;
+  font-size: 42px;
+  line-height: 1.12;
+  letter-spacing: 0;
 }
 
 .welcome-copy p:last-child {
@@ -1135,6 +1223,7 @@ dialog::backdrop {
   background: var(--paper);
   padding: 18px;
   box-shadow: 0 18px 52px rgba(0, 0, 0, 0.22);
+  border-radius: 6px;
   content-visibility: auto;
   contain-intrinsic-size: 240px;
 }
@@ -1289,14 +1378,15 @@ dialog::backdrop {
 
 .profile-card.active,
 .style-card.active,
-.page-option.active {
+.page-option.active,
+.battle-mode-card.active {
   border-color: var(--stamp);
   box-shadow: inset 0 -3px 0 var(--stamp);
 }
 
 .page-picker {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
 }
 
@@ -1512,7 +1602,7 @@ dialog::backdrop {
 
 .character-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(138px, 1fr));
   gap: 10px;
 }
 
@@ -1545,15 +1635,90 @@ dialog::backdrop {
 }
 
 .character-mixed {
-  background-image: url("assets/characters/character-a.png"), url("assets/characters/character-b.png");
-  background-size: 48px 48px, 42px 42px;
-  background-position: left center, right center;
+  background-image:
+    url("assets/fighters/brawler-girl/idle.png"),
+    url("assets/fighters/enemy-punk/idle.png"),
+    url("assets/fighters/fx/queen.png"),
+    url("assets/fighters/fx/fistbot.png");
+  background-size: 76px 50px, 76px 50px, 64px 40px, 62px 42px;
+  background-position: left center, 38% center, 70% center, right center;
 }
 
-.character-energy { background-image: url("assets/characters/character-a.png"); }
-.character-arcade { background-image: url("assets/characters/character-b.png"); }
-.character-armor { background-image: url("assets/characters/character-c.png"); }
-.character-mystic { background-image: url("assets/characters/character-d.png"); }
+.character-brawler {
+  background-image: url("assets/fighters/brawler-girl/idle.png");
+  background-size: 82px 54px;
+}
+
+.character-punk {
+  background-image: url("assets/fighters/enemy-punk/idle.png");
+  background-size: 82px 54px;
+}
+
+.character-energy {
+  background-image: url("assets/fighters/ranger/SMS_Ranger_Idle_1_strip4.png");
+  background-size: 76px 38px;
+}
+
+.character-arcade {
+  background-image: url("assets/fighters/renegade/Renegade_Idle_1_strip4.png");
+  background-size: 76px 38px;
+}
+
+.character-armor {
+  background-image: url("assets/fighters/soldier/NES_Soldier_Idle_1_strip4.png");
+  background-size: 76px 38px;
+}
+
+.character-mystic {
+  background-image: url("assets/fighters/kungfu/GB_Kung_Fu_Man_Idle_EAST_strip4.png");
+  background-size: 76px 32px;
+}
+
+.character-gladiator {
+  background-image: url("assets/fighters/gladiator/Idle_East_StripSheet.png");
+  background-size: 76px 38px;
+}
+
+.character-queen {
+  background-image: url("assets/fighters/fx/queen.png");
+  background-size: 96px 38px;
+}
+
+.character-fistbot {
+  background-image: url("assets/fighters/fx/fistbot.png");
+  background-size: 86px 46px;
+}
+
+.battle-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.battle-mode-card {
+  min-height: 82px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  padding: 12px;
+}
+
+.battle-mode-card strong {
+  display: block;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+.battle-mode-card small {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.55;
+  letter-spacing: 0.06em;
+}
 
 .character-count {
   width: min(220px, 100%);
@@ -1688,6 +1853,8 @@ body[data-layout="bento"] .weather-block {
 }
 
 body[data-layout="bento"] .note-board,
+body[data-layout="bento"] .rhythm-board,
+body[data-layout="bento"] .system-grid,
 body[data-layout="bento"] .count-list {
   gap: 10px;
   padding-top: 8px;
@@ -1874,7 +2041,9 @@ body[data-layout="split"] .footer {
 
 body[data-layout="split"] .weather-blocks,
 body[data-layout="split"] .count-list,
-body[data-layout="split"] .note-board {
+body[data-layout="split"] .note-board,
+body[data-layout="split"] .rhythm-board,
+body[data-layout="split"] .system-grid {
   grid-template-columns: 1fr;
 }
 
@@ -2033,6 +2202,8 @@ body[data-style-family="blueprint"] #device::before {
 
   .welcome-copy {
     position: static;
+    min-height: auto;
+    display: block;
   }
 
   .welcome-copy h1,
@@ -2045,6 +2216,7 @@ body[data-style-family="blueprint"] #device::before {
   .style-grid,
   .layout-grid,
   .character-grid,
+  .battle-mode-grid,
   .identity-grid,
   .config-grid,
   .form-row,
@@ -2072,6 +2244,7 @@ body[data-style-family="blueprint"] #device::before {
   .style-grid,
   .layout-grid,
   .character-grid,
+  .battle-mode-grid,
   .identity-grid,
   .config-grid,
   .form-row,

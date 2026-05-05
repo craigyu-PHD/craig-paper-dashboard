@@ -9,7 +9,10 @@ const PAGE_DEFS = [
   { id: "weather", label: "天　氣", short: "天氣", desc: "即時天氣、溫度與降雨機率" },
   { id: "calendar", label: "行　事　曆", short: "行事曆", desc: "今日正在進行與即將到來的事項" },
   { id: "countdown", label: "倒　數　日", short: "倒數日", desc: "重要日期、紀念日與里程碑" },
-  { id: "notes", label: "焦　點", short: "焦點", desc: "今日提醒、工作重點與個人提示" }
+  { id: "notes", label: "焦　點", short: "焦點", desc: "今日提醒、工作重點與個人提示" },
+  { id: "rhythm", label: "節　奏", short: "節奏", desc: "今日生活節奏、例行習慣與補水提醒" },
+  { id: "system", label: "系　統", short: "系統", desc: "螢幕、電量、網路與本機狀態" },
+  { id: "briefing", label: "簡　報", short: "簡報", desc: "今天的三個主題與一句提醒" }
 ];
 
 const SERIF_STACK = `"Songti TC", "Noto Serif TC", Georgia, serif`;
@@ -73,24 +76,206 @@ const LAYOUT_DEFS = [
 
 const CHARACTER_DEFS = [
   { id: "off", zh: "不要角色", desc: "保持純儀表板畫面。" },
-  { id: "mixed", zh: "CC0 3D 混戰", desc: "Kenney CC0 3D 角色混戰。" },
-  { id: "energy", zh: "3D 遠攻型", desc: "3D 角色與遠距衝擊。" },
-  { id: "arcade", zh: "3D 近戰型", desc: "3D 角色近身連打。" },
-  { id: "armor", zh: "3D 重裝型", desc: "3D 角色重擊與高血量。" },
-  { id: "mystic", zh: "3D 技巧型", desc: "3D 角色高速牽制。" }
+  { id: "mixed", zh: "精選格鬥混戰", desc: "較精緻的街機格鬥素材混戰。" },
+  { id: "brawler", zh: "街頭女拳手", desc: "Streets of Fight 玩家角色。" },
+  { id: "punk", zh: "龐克敵手", desc: "Streets of Fight 敵方角色。" },
+  { id: "queen", zh: "拳擊女王", desc: "Punching Queen 大尺寸動作。" },
+  { id: "fistbot", zh: "拳擊機器人", desc: "Beat em up graphics pack 拳套機器人。" }
 ];
 
-const FIGHTER_POOL = ["energy", "arcade", "armor", "mystic"];
+const BATTLE_MODE_DEFS = [
+  { id: "interactive", zh: "桌面互動", desc: "角色會巡邏、推動資料卡、穿梭在頁面框線旁。" },
+  { id: "spar", zh: "循環對戰", desc: "打出勝負後短暫慶祝，再重新開局，不會只剩一隻。" },
+  { id: "patrol", zh: "陪伴巡邏", desc: "減少攻擊動作，適合長時間當桌面擺飾。" }
+];
+
+const frameRange = (from, to) => Array.from({ length: to - from + 1 }, (_, index) => from + index);
+const FIGHTER_POOL = ["brawler", "punk", "queen", "fistbot"];
 const FIGHTER_META = {
-  energy: { accent: "#35e8ff", model: "assets/characters/character-a.glb", speed: 0.076, reach: 92, hp: 10, strike: 1.1, blast: 2.1, knockback: 19 },
-  arcade: { accent: "#ffcf33", model: "assets/characters/character-b.glb", speed: 0.088, reach: 58, hp: 12, strike: 1.7, blast: 1.2, knockback: 16 },
-  armor: { accent: "#7df9ff", model: "assets/characters/character-c.glb", speed: 0.06, reach: 66, hp: 15, strike: 2, blast: 1.4, knockback: 22 },
-  mystic: { accent: "#ff7df5", model: "assets/characters/character-d.glb", speed: 0.068, reach: 102, hp: 9, strike: 1, blast: 2.5, knockback: 20 }
+  brawler: {
+    name: "Brawler Girl",
+    accent: "#ff5a85",
+    speed: 0.09,
+    reach: 72,
+    hp: 13,
+    strike: 1.9,
+    blast: 2.2,
+    knockback: 22,
+    scale: 0.92,
+    smooth: true,
+    sprites: {
+      idle: { src: "assets/fighters/brawler-girl/idle.png", w: 96, h: 63, frames: frameRange(0, 3), fps: 6 },
+      walk: { src: "assets/fighters/brawler-girl/walk.png", w: 96, h: 63, frames: frameRange(0, 9), fps: 12 },
+      strike: { src: "assets/fighters/brawler-girl/punch.png", w: 96, h: 63, frames: frameRange(0, 2), fps: 14 },
+      blast: { src: "assets/fighters/brawler-girl/kick.png", w: 96, h: 63, frames: frameRange(0, 4), fps: 14 },
+      hurt: { src: "assets/fighters/brawler-girl/hurt.png", w: 96, h: 63, frames: frameRange(0, 1), fps: 7 },
+      ko: { src: "assets/fighters/brawler-girl/hurt.png", w: 96, h: 63, frames: frameRange(0, 1), fps: 5 }
+    }
+  },
+  punk: {
+    name: "Enemy Punk",
+    accent: "#7cffcb",
+    speed: 0.082,
+    reach: 70,
+    hp: 12,
+    strike: 1.8,
+    blast: 1.7,
+    knockback: 20,
+    scale: 0.94,
+    smooth: true,
+    sprites: {
+      idle: { src: "assets/fighters/enemy-punk/idle.png", w: 96, h: 63, frames: frameRange(0, 3), fps: 6 },
+      walk: { src: "assets/fighters/enemy-punk/walk.png", w: 96, h: 63, frames: frameRange(0, 3), fps: 9 },
+      strike: { src: "assets/fighters/enemy-punk/punch.png", w: 96, h: 63, frames: frameRange(0, 2), fps: 12 },
+      blast: { src: "assets/fighters/enemy-punk/punch.png", w: 96, h: 63, frames: frameRange(0, 2), fps: 12 },
+      hurt: { src: "assets/fighters/enemy-punk/hurt.png", w: 96, h: 63, frames: frameRange(0, 3), fps: 8 },
+      ko: { src: "assets/fighters/enemy-punk/hurt.png", w: 96, h: 63, frames: frameRange(0, 3), fps: 6 }
+    }
+  },
+  fistbot: {
+    name: "Fist Bot",
+    accent: "#53e7ff",
+    speed: 0.086,
+    reach: 64,
+    hp: 12,
+    strike: 1.7,
+    blast: 2.1,
+    knockback: 20,
+    scale: 1.22,
+    smooth: true,
+    sprites: {
+      idle: { src: "assets/fighters/fx/fistbot.png", w: 76, h: 58, frames: frameRange(0, 2), fps: 5 },
+      walk: { src: "assets/fighters/fx/fistbot.png", w: 76, h: 58, frames: frameRange(0, 2), fps: 10 },
+      strike: { src: "assets/fighters/fx/fistbot.png", w: 76, h: 58, frames: [4], fps: 1 },
+      blast: { src: "assets/fighters/fx/fistbot.png", w: 76, h: 58, frames: [4], fps: 1 },
+      hurt: { src: "assets/fighters/fx/fistbot.png", w: 76, h: 58, frames: [3], fps: 1 },
+      ko: { src: "assets/fighters/fx/fistbot.png", w: 76, h: 58, frames: [3], fps: 1 }
+    }
+  },
+  arcade: {
+    name: "Renegade",
+    accent: "#ffcf33",
+    speed: 0.092,
+    reach: 54,
+    hp: 11,
+    strike: 1.8,
+    blast: 1.2,
+    knockback: 17,
+    scale: 3.1,
+    sprites: {
+      idle: { src: "assets/fighters/renegade/Renegade_Idle_1_strip4.png", w: 16, h: 32, frames: frameRange(0, 3), fps: 6 },
+      walk: { src: "assets/fighters/renegade/Renegade_Walk_1_strip4.png", w: 16, h: 32, frames: frameRange(0, 3), fps: 9 },
+      strike: { src: "assets/fighters/renegade/Renegade_Punch_1.png", w: 24, h: 32, frames: [0], fps: 1 },
+      blast: { src: "assets/fighters/renegade/Renegade_Kick_1.png", w: 24, h: 32, frames: [0], fps: 1 },
+      hurt: { src: "assets/fighters/renegade/Renegade_Hurt.png", w: 16, h: 32, frames: [0], fps: 1 },
+      ko: { src: "assets/fighters/renegade/Renegade_Knock_Out.png", w: 24, h: 32, frames: [0], fps: 1 }
+    }
+  },
+  energy: {
+    name: "Ranger",
+    accent: "#35e8ff",
+    speed: 0.098,
+    reach: 60,
+    hp: 10,
+    strike: 1.5,
+    blast: 1.8,
+    knockback: 19,
+    scale: 3.1,
+    sprites: {
+      idle: { src: "assets/fighters/ranger/SMS_Ranger_Idle_1_strip4.png", w: 16, h: 32, frames: frameRange(0, 3), fps: 6 },
+      walk: { src: "assets/fighters/ranger/SMS_Ranger_Walk_1_strip4.png", w: 16, h: 32, frames: frameRange(0, 3), fps: 9 },
+      strike: { src: "assets/fighters/ranger/SMS_Ranger_Punch_1.png", w: 24, h: 32, frames: [0], fps: 1 },
+      blast: { src: "assets/fighters/ranger/SMS_Ranger_Kick_1.png", w: 24, h: 32, frames: [0], fps: 1 },
+      hurt: { src: "assets/fighters/ranger/SMS_Ranger_Hurt.png", w: 16, h: 32, frames: [0], fps: 1 },
+      ko: { src: "assets/fighters/ranger/SMS_Ranger_KnockDown.png", w: 24, h: 32, frames: [0], fps: 1 }
+    }
+  },
+  armor: {
+    name: "NES Soldier",
+    accent: "#7df9ff",
+    speed: 0.07,
+    reach: 66,
+    hp: 15,
+    strike: 2.1,
+    blast: 1.4,
+    knockback: 23,
+    scale: 3.1,
+    sprites: {
+      idle: { src: "assets/fighters/soldier/NES_Soldier_Idle_1_strip4.png", w: 16, h: 32, frames: frameRange(0, 3), fps: 5 },
+      walk: { src: "assets/fighters/soldier/NES_Soldier_Walk_1_strip4.png", w: 16, h: 32, frames: frameRange(0, 3), fps: 8 },
+      strike: { src: "assets/fighters/soldier/NES_Soldier_Punch_1.png", w: 24, h: 32, frames: [0], fps: 1 },
+      blast: { src: "assets/fighters/soldier/NES_Soldier_Kick_1.png", w: 24, h: 32, frames: [0], fps: 1 },
+      hurt: { src: "assets/fighters/soldier/NES_Soldier_Hurt.png", w: 16, h: 32, frames: [0], fps: 1 },
+      ko: { src: "assets/fighters/soldier/NES_Soldier_Death.png", w: 40, h: 32, frames: [0], fps: 1 }
+    }
+  },
+  mystic: {
+    name: "Kung Fu Man",
+    accent: "#ff7df5",
+    speed: 0.108,
+    reach: 52,
+    hp: 9,
+    strike: 1.3,
+    blast: 1.9,
+    knockback: 18,
+    scale: 3.3,
+    sprites: {
+      idle: { src: "assets/fighters/kungfu/GB_Kung_Fu_Man_Idle_EAST_strip4.png", w: 16, h: 24, frames: frameRange(0, 3), fps: 7 },
+      walk: { src: "assets/fighters/kungfu/GB_Kung_Fu_Man_Walk_EAST_strip4.png", w: 16, h: 24, frames: frameRange(0, 3), fps: 10 },
+      strike: { src: "assets/fighters/kungfu/GB_Kung_Fu_Man_AttackPunch_EAST.png", w: 16, h: 24, frames: [0], fps: 1 },
+      blast: { src: "assets/fighters/kungfu/GB_Kung_Fu_Man_AttackKick_EAST.png", w: 16, h: 24, frames: [0], fps: 1 },
+      hurt: { src: "assets/fighters/kungfu/GB_Kung_Fu_Man_HitHurt_EAST.png", w: 16, h: 24, frames: [0], fps: 1 },
+      ko: { src: "assets/fighters/kungfu/GB_Kung_Fu_Man_HitHurt_EAST.png", w: 16, h: 24, frames: [0], fps: 1 }
+    }
+  },
+  gladiator: {
+    name: "Toby Orbon",
+    accent: "#ff8a35",
+    speed: 0.084,
+    reach: 58,
+    hp: 12,
+    strike: 1.7,
+    blast: 1.5,
+    knockback: 18,
+    scale: 3.05,
+    sprites: {
+      idle: { src: "assets/fighters/gladiator/Idle_East_StripSheet.png", w: 24, h: 32, frames: frameRange(0, 3), fps: 6 },
+      walk: { src: "assets/fighters/gladiator/Walk_East_StripSheet.png", w: 24, h: 32, frames: frameRange(0, 3), fps: 9 },
+      strike: { src: "assets/fighters/gladiator/Attack_East_frame_0.png", w: 24, h: 32, frames: [0], fps: 1 },
+      blast: { src: "assets/fighters/gladiator/Attack_East_frame_0.png", w: 24, h: 32, frames: [0], fps: 1 },
+      hurt: { src: "assets/fighters/gladiator/Hurt_East_frame_0.png", w: 24, h: 32, frames: [0], fps: 1 },
+      ko: { src: "assets/fighters/gladiator/Hurt_East_frame_0.png", w: 24, h: 32, frames: [0], fps: 1 }
+    }
+  },
+  queen: {
+    name: "Punching Queen",
+    accent: "#ff4f9a",
+    speed: 0.078,
+    reach: 76,
+    hp: 13,
+    strike: 2.1,
+    blast: 2.4,
+    knockback: 24,
+    scale: 1.2,
+    sprites: {
+      idle: { src: "assets/fighters/fx/queen.png", w: 74, h: 75, frames: frameRange(0, 2), fps: 6 },
+      walk: { src: "assets/fighters/fx/queen.png", w: 74, h: 75, frames: frameRange(0, 2), fps: 8 },
+      strike: { src: "assets/fighters/fx/queen.png", w: 74, h: 75, frames: [9, 10, 11], fps: 12 },
+      blast: { src: "assets/fighters/fx/queen.png", w: 74, h: 75, frames: [24, 25], fps: 10 },
+      hurt: { src: "assets/fighters/fx/queen.png", w: 74, h: 75, frames: [3], fps: 1 },
+      ko: { src: "assets/fighters/fx/queen.png", w: 74, h: 75, frames: frameRange(3, 8), fps: 8 }
+    }
+  }
 };
 const ARENA_W = 736;
 const ARENA_H = 414;
-const THREE_URL = "https://esm.sh/three@0.164.1";
-const GLTF_LOADER_URL = "https://esm.sh/three@0.164.1/examples/jsm/loaders/GLTFLoader.js";
+const INTERACTION_ZONES = [
+  { id: "clock", x: 492, y: 18, w: 214, h: 72, label: "TIME" },
+  { id: "weather", x: 46, y: 166, w: 220, h: 86, label: "WEATHER" },
+  { id: "calendar", x: 286, y: 164, w: 190, h: 72, label: "PLAN" },
+  { id: "notes", x: 500, y: 154, w: 168, h: 100, label: "NOTE" },
+  { id: "tabs", x: 58, y: 356, w: 260, h: 32, label: "TAB" }
+];
 
 const DEFAULT_PROFILES = [
   {
@@ -101,10 +286,10 @@ const DEFAULT_PROFILES = [
     role: "個人桌面 · 待補完整資料",
     style: "paper",
     layout: "classic",
-    enabledTabs: ["weather", "calendar", "countdown", "notes"],
+    enabledTabs: ["weather", "calendar", "countdown", "notes", "rhythm", "system", "briefing"],
     location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: true },
     dataUrl: "",
-    battle: { enabled: false, count: 3, theme: "mixed" },
+    battle: { enabled: false, count: 4, theme: "mixed", mode: "interactive" },
     events: [
       { title: "晨間整理", start: "08:40", end: "09:10", where: "Craig Desk" },
       { title: "論文與寫作", start: "10:00", end: "12:00", where: "Secondbrain" },
@@ -121,6 +306,16 @@ const DEFAULT_PROFILES = [
       { title: "今日主軸", body: "先整理個人資料，再把固定資訊做成可共用的設定檔。" },
       { title: "資料狀態", body: "天氣即時讀取；行事曆與倒數日先以本機設定儲存。" },
       { title: "下一步", body: "提供個人資料後，可直接寫入 Craig 預設設定檔並重新部署。" }
+    ],
+    rhythms: [
+      { title: "喝水", meta: "每 90 分鐘", value: "4/8" },
+      { title: "伸展", meta: "肩頸與手腕", value: "2 次" },
+      { title: "深度工作", meta: "無通知區段", value: "2h" }
+    ],
+    briefings: [
+      "今天先讓桌面保持可看、可用、可長時間開著。",
+      "重要資訊放在時間旁，瑣碎資訊放到輪播頁。",
+      "資料與風格可以換，但閱讀清楚永遠優先。"
     ]
   },
   {
@@ -131,10 +326,10 @@ const DEFAULT_PROFILES = [
     role: "共用展示 · 可複製成同事設定檔",
     style: "ocean",
     layout: "classic",
-    enabledTabs: ["weather", "calendar", "notes"],
+    enabledTabs: ["weather", "calendar", "notes", "system"],
     location: { label: "臺北市", latitude: 25.033, longitude: 121.5654, useDeviceLocation: false },
     dataUrl: "",
-    battle: { enabled: false, count: 2, theme: "arcade" },
+    battle: { enabled: false, count: 3, theme: "mixed", mode: "patrol" },
     events: [
       { title: "團隊晨會", start: "09:30", end: "10:00", where: "Meeting" },
       { title: "專案檢查", start: "14:00", end: "15:00", where: "Workspace" },
@@ -147,6 +342,15 @@ const DEFAULT_PROFILES = [
     notes: [
       { title: "展示用設定檔", body: "可在設定修改後，成為任一同事的個人儀表板。" },
       { title: "共用原則", body: "每個瀏覽器各自儲存，不會寫回其他人的設定。" }
+    ],
+    rhythms: [
+      { title: "會議", meta: "上午優先", value: "1" },
+      { title: "回覆", meta: "集中處理", value: "2 批" }
+    ],
+    briefings: [
+      "這是共用展示設定檔，可複製後改成同事版本。",
+      "先確認頁面組合，再調整風格與資料。",
+      "若長時間常駐，建議開啟陪伴巡邏模式。"
     ]
   }
 ];
@@ -164,7 +368,7 @@ let lastDateKey = "";
 let lastCalendarMinuteKey = "";
 let arenaFrame = null;
 let arenaState = null;
-let threeKitPromise = null;
+const fighterImages = {};
 
 function $(selector) {
   return document.querySelector(selector);
@@ -202,6 +406,11 @@ function readProfiles() {
 
 function normalizeProfile(profile) {
   const fallback = clone(DEFAULT_PROFILES.find((item) => item.id === profile.id) || DEFAULT_PROFILES[0]);
+  const availableThemes = new Set(CHARACTER_DEFS.filter((item) => item.id !== "off").map((item) => item.id));
+  const availableModes = new Set(BATTLE_MODE_DEFS.map((item) => item.id));
+  const battle = { ...fallback.battle, ...(profile.battle || {}) };
+  if (!availableThemes.has(battle.theme)) battle.theme = fallback.battle?.theme || "mixed";
+  if (!availableModes.has(battle.mode)) battle.mode = fallback.battle?.mode || "interactive";
   return {
     ...fallback,
     ...profile,
@@ -211,10 +420,12 @@ function normalizeProfile(profile) {
     location: { ...fallback.location, ...(profile.location || {}) },
     dataUrl: profile.dataUrl || "",
     layout: profile.layout || fallback.layout || "classic",
-    battle: { ...fallback.battle, ...(profile.battle || {}) },
+    battle,
     events: Array.isArray(profile.events) ? profile.events : fallback.events,
     countdowns: Array.isArray(profile.countdowns) ? profile.countdowns : fallback.countdowns,
-    notes: Array.isArray(profile.notes) ? profile.notes : fallback.notes
+    notes: Array.isArray(profile.notes) ? profile.notes : fallback.notes,
+    rhythms: Array.isArray(profile.rhythms) ? profile.rhythms : fallback.rhythms,
+    briefings: Array.isArray(profile.briefings) ? profile.briefings : fallback.briefings
   };
 }
 
@@ -245,6 +456,56 @@ function stylePreviewVars(style) {
     `--sample-accent:${vars["--stamp"] || "#a0382e"}`,
     `--sample-font:${font}`
   ].join(";");
+}
+
+function hexToRgb(value) {
+  const hex = String(value || "").trim().replace("#", "");
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return null;
+  return {
+    r: parseInt(hex.slice(0, 2), 16),
+    g: parseInt(hex.slice(2, 4), 16),
+    b: parseInt(hex.slice(4, 6), 16)
+  };
+}
+
+function rgbToHex({ r, g, b }) {
+  return `#${[r, g, b].map((item) => Math.round(clamp(item, 0, 255)).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function relativeLuminance(color) {
+  const channel = (value) => {
+    const ratio = value / 255;
+    return ratio <= 0.03928 ? ratio / 12.92 : ((ratio + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(color.r) + 0.7152 * channel(color.g) + 0.0722 * channel(color.b);
+}
+
+function contrastRatio(a, b) {
+  const light = Math.max(relativeLuminance(a), relativeLuminance(b));
+  const dark = Math.min(relativeLuminance(a), relativeLuminance(b));
+  return (light + 0.05) / (dark + 0.05);
+}
+
+function mixRgb(a, b, weight) {
+  return {
+    r: a.r * weight + b.r * (1 - weight),
+    g: a.g * weight + b.g * (1 - weight),
+    b: a.b * weight + b.b * (1 - weight)
+  };
+}
+
+function readableColor(baseColor, paperColor, targetRatio, fallbackWeight) {
+  const base = hexToRgb(baseColor);
+  const paper = hexToRgb(paperColor);
+  if (!base || !paper || contrastRatio(base, paper) >= targetRatio) return baseColor;
+  const black = { r: 0, g: 0, b: 0 };
+  const white = { r: 255, g: 255, b: 255 };
+  const anchor = contrastRatio(black, paper) > contrastRatio(white, paper) ? black : white;
+  for (let weight = fallbackWeight; weight <= 1; weight += 0.08) {
+    const candidate = mixRgb(anchor, base, weight);
+    if (contrastRatio(candidate, paper) >= targetRatio) return rgbToHex(candidate);
+  }
+  return rgbToHex(anchor);
 }
 
 function getCallName() {
@@ -339,6 +600,9 @@ function updateWelcomeActiveStates() {
   $all("[data-character]").forEach((button) => {
     button.classList.toggle("active", button.dataset.character === characterMode);
   });
+  $all("[data-battle-mode]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.battleMode === (battle.mode || "interactive"));
+  });
 }
 
 function renderWelcome() {
@@ -404,6 +668,14 @@ function renderWelcome() {
       <label>角色數量
         <input id="welcomeBattleCountInput" type="number" min="2" max="6" step="1" value="${Math.max(2, Math.min(6, Number(battle.count) || 3))}">
       </label>
+    </div>
+    <div class="battle-mode-grid">
+      ${BATTLE_MODE_DEFS.map((mode) => (
+        `<button class="battle-mode-card${(battle.mode || "interactive") === mode.id ? " active" : ""}" data-battle-mode="${mode.id}" type="button">
+          <strong>${mode.zh}</strong>
+          <small>${mode.desc}</small>
+        </button>`
+      )).join("")}
     </div>`;
 
   $all("[data-profile]").forEach((button) => {
@@ -459,7 +731,21 @@ function renderWelcome() {
         ...(activeProfile.battle || {}),
         enabled: character !== "off",
         theme: character === "off" ? "mixed" : character,
-        count: Math.max(2, Math.min(6, Number($("#welcomeBattleCountInput")?.value) || activeProfile.battle?.count || 3))
+        count: Math.max(2, Math.min(6, Number($("#welcomeBattleCountInput")?.value) || activeProfile.battle?.count || 3)),
+        mode: activeProfile.battle?.mode || "interactive"
+      };
+      updateActiveProfile();
+      renderArena();
+      updateWelcomeActiveStates();
+    });
+  });
+
+  $all("[data-battle-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeProfile.battle = {
+        ...(activeProfile.battle || {}),
+        enabled: true,
+        mode: button.dataset.battleMode || "interactive"
       };
       updateActiveProfile();
       renderArena();
@@ -515,6 +801,13 @@ function applyTheme() {
   const style = getStyle(activeProfile.style || "paper");
   STYLE_VAR_KEYS.forEach((key) => document.body.style.removeProperty(key));
   Object.entries(style.vars || {}).forEach(([key, value]) => document.body.style.setProperty(key, value));
+  const paper = style.vars?.["--paper"] || "#f1ebdc";
+  const paperDeep = style.vars?.["--paper-deep"] || paper;
+  const ink = style.vars?.["--ink"] || "#2a2520";
+  document.body.style.setProperty("--ink", readableColor(ink, paper, 7, 0.72));
+  document.body.style.setProperty("--ink-soft", readableColor(style.vars?.["--ink-soft"] || ink, paper, 4.8, 0.58));
+  document.body.style.setProperty("--ink-faint", readableColor(style.vars?.["--ink-faint"] || ink, paper, 3.8, 0.42));
+  document.body.style.setProperty("--panel-readable", readableColor(style.vars?.["--ink-soft"] || ink, paperDeep, 4.5, 0.58));
   document.body.dataset.style = style.id;
   document.body.dataset.styleFamily = style.family || "paper";
   document.body.dataset.layout = activeProfile.layout || style.layout || "classic";
@@ -534,6 +827,9 @@ function applyProfile() {
   renderCalendar();
   renderCountdowns();
   renderNotes();
+  renderRhythm();
+  renderSystem();
+  renderBriefing();
   renderArena();
   loadWeather();
   saveProfiles();
@@ -551,80 +847,33 @@ function renderTabs() {
 
 function stopArena() {
   if (arenaFrame) cancelAnimationFrame(arenaFrame);
-  if (arenaState?.renderer) {
-    arenaState.renderer.dispose();
-    arenaState.renderer.forceContextLoss?.();
-  }
   arenaFrame = null;
   arenaState = null;
   $("#arenaLayer").innerHTML = "";
-}
-
-function loadThreeKit() {
-  if (!threeKitPromise) {
-    threeKitPromise = Promise.all([
-      import(THREE_URL),
-      import(GLTF_LOADER_URL)
-    ]).then(([THREE, loaderModule]) => ({
-      THREE,
-      GLTFLoader: loaderModule.GLTFLoader
-    }));
-  }
-  return threeKitPromise;
-}
-
-function screenToWorld(x, y) {
-  return {
-    x: (x / ARENA_W - 0.5) * 10.8,
-    z: (y / ARENA_H - 0.5) * 5.8
-  };
 }
 
 function actionPreference(type) {
   return FIGHTER_META[type].reach * 0.68;
 }
 
-function setModelOpacity(object, opacity) {
-  object.traverse((child) => {
-    if (!child.isMesh || !child.material) return;
-    child.material.opacity = opacity;
-    child.material.transparent = opacity < 1;
+function getSpriteImage(src) {
+  if (!fighterImages[src]) {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = src;
+    fighterImages[src] = image;
+  }
+  return fighterImages[src];
+}
+
+function preloadFighterSprites(types) {
+  const files = new Set();
+  types.forEach((type) => {
+    const meta = FIGHTER_META[type];
+    Object.values(meta.sprites).forEach((sprite) => files.add(sprite.src));
   });
-}
-
-function clipAction(fighter, name) {
-  if (!fighter.actions) return null;
-  return fighter.actions.get(name) || fighter.actions.get("idle") || fighter.actions.values().next().value || null;
-}
-
-function playFighterAnimation(fighter, name, key = name) {
-  if (!fighter.mixer || !fighter.actions || fighter.animationKey === key) return;
-  const next = clipAction(fighter, name);
-  if (!next) return;
-  const previous = fighter.currentAnimation ? clipAction(fighter, fighter.currentAnimation) : null;
-
-  next.enabled = true;
-  next.paused = false;
-  next.clampWhenFinished = name === "die";
-  next.reset().play();
-  if (previous && previous !== next) previous.crossFadeTo(next, 0.1, false);
-
-  fighter.currentAnimation = name;
-  fighter.animationKey = key;
-}
-
-function animationNameForFighter(fighter, now) {
-  if (!fighter.alive) return { name: "die", key: `die-${fighter.hitStarted}` };
-  if (arenaState?.winnerId === fighter.id && livingFighters(arenaState.fighters).length === 1) {
-    return { name: "emote-yes", key: "winner" };
-  }
-  if (now < fighter.hitUntil) return { name: "emote-no", key: `hurt-${fighter.hitStarted}` };
-  if (now < fighter.actionUntil) {
-    if (fighter.state === "blast") return { name: "holding-both-shoot", key: `blast-${fighter.actionStarted}` };
-    return { name: fighter.face >= 0 ? "attack-melee-right" : "attack-melee-left", key: `strike-${fighter.actionStarted}` };
-  }
-  if (Math.hypot(fighter.vx, fighter.vy) > 0.32) return { name: "walk", key: "walk" };
-  return { name: "idle", key: "idle" };
+  files.add("assets/fighters/fx/hitspark.png");
+  files.forEach(getSpriteImage);
 }
 
 function createFighter(index, theme, count) {
@@ -648,131 +897,53 @@ function createFighter(index, theme, count) {
     actionUntil: 0,
     cooldown: randomBetween(420, 980),
     frameOffset: randomBetween(0, 400),
+    behaviorUntil: 0,
+    zone: null,
+    carryUntil: 0,
+    hideUntil: 0,
     hitStarted: 0,
     hitUntil: 0,
+    sparkUntil: 0,
+    sparkX: x,
+    sparkY: y,
     exitUntil: 0,
     alive: true,
     hp: meta.hp,
     maxHp: meta.hp,
-    object: null,
-    effect: null,
-    ring: null,
-    mixer: null,
-    actions: null,
-    currentAnimation: "",
-    animationKey: ""
+    respawnAt: 0
   };
 }
 
-async function attachFighterModel(state, fighter) {
-  const { THREE, loader, scene } = state;
-  const meta = FIGHTER_META[fighter.type];
-  const gltf = await loader.loadAsync(meta.model);
-  if (arenaState !== state) return;
-
-  const object = gltf.scene;
-  object.scale.setScalar(1.34);
-  object.traverse((child) => {
-    if (!child.isMesh) return;
-    child.castShadow = false;
-    child.receiveShadow = false;
-    if (child.material) {
-      child.material = child.material.clone();
-      child.material.transparent = true;
-      child.material.opacity = 1;
-    }
-  });
-  scene.add(object);
-
-  const effect = new THREE.Mesh(
-    new THREE.SphereGeometry(0.24, 18, 12),
-    new THREE.MeshBasicMaterial({ color: meta.accent, transparent: true, opacity: 0 })
-  );
-  effect.visible = false;
-  scene.add(effect);
-
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(0.54, 0.025, 8, 42),
-    new THREE.MeshBasicMaterial({ color: meta.accent, transparent: true, opacity: 0.62 })
-  );
-  ring.rotation.x = Math.PI / 2;
-  scene.add(ring);
-
-  fighter.object = object;
-  fighter.effect = effect;
-  fighter.ring = ring;
-  if (gltf.animations?.length) {
-    fighter.mixer = new THREE.AnimationMixer(object);
-    fighter.actions = new Map(gltf.animations.map((clip) => [clip.name, fighter.mixer.clipAction(clip)]));
-    playFighterAnimation(fighter, "idle");
-  }
-  syncFighterObject(fighter, performance.now(), 16);
-}
-
-async function startArena(count, theme) {
+function startArena(count, theme, mode = activeProfile.battle?.mode || "interactive") {
   const arena = $("#arenaLayer");
-  const token = Symbol("arena");
+  const canvas = document.createElement("canvas");
+  canvas.className = "arena-canvas";
+  canvas.width = ARENA_W;
+  canvas.height = ARENA_H;
   arena.innerHTML = "";
+  arena.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d", { alpha: true });
+  ctx.imageSmoothingEnabled = true;
+  const fighters = Array.from({ length: count }, (_, index) => createFighter(index, theme, count));
+  const css = getComputedStyle(document.body);
   arenaState = {
-    token,
-    key: `${count}-${theme}`,
-    renderer: null,
-    scene: null,
-    camera: null,
-    loader: null,
-    THREE: null,
+    key: `${count}-${theme}-${mode}`,
+    mode,
+    canvas,
+    ctx,
+    colors: {
+      paper: css.getPropertyValue("--paper").trim() || "#f1ebdc",
+      panel: css.getPropertyValue("--paper-deep").trim() || "#e8e0cc",
+      ink: css.getPropertyValue("--ink").trim() || "#2a2520",
+      line: css.getPropertyValue("--line").trim() || "#cdc3ae"
+    },
     last: performance.now(),
     winnerId: null,
     finishedAt: 0,
-    fighters: Array.from({ length: count }, (_, index) => createFighter(index, theme, count))
+    fighters
   };
-
-  const state = arenaState;
-  const { THREE, GLTFLoader } = await loadThreeKit();
-  if (arenaState !== state || state.token !== token) return;
-
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: "low-power" });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-  renderer.setSize(ARENA_W, ARENA_H, false);
-  renderer.domElement.className = "arena-canvas";
-  if (THREE.SRGBColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
-  arena.innerHTML = "";
-  arena.appendChild(renderer.domElement);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, ARENA_W / ARENA_H, 0.1, 60);
-  camera.position.set(0, 5.6, 10.8);
-  camera.lookAt(0, 0.8, 0);
-
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x25242a, 1.9));
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
-  keyLight.position.set(3.4, 7, 5);
-  scene.add(keyLight);
-
-  const floor = new THREE.Mesh(
-    new THREE.CircleGeometry(6.4, 48),
-    new THREE.MeshBasicMaterial({ color: 0x111116, transparent: true, opacity: 0.12 })
-  );
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.02;
-  scene.add(floor);
-
-  const manager = new THREE.LoadingManager();
-  manager.setURLModifier((url) => {
-    const file = url.split("/").pop();
-    if (/^texture-[a-f]\.png$/i.test(file)) return `assets/characters/Textures/${file}`;
-    return url;
-  });
-
-  state.THREE = THREE;
-  state.renderer = renderer;
-  state.scene = scene;
-  state.camera = camera;
-  state.loader = new GLTFLoader(manager);
-  state.loader.setResourcePath("assets/characters/Textures/");
-  await Promise.all(state.fighters.map((fighter) => attachFighterModel(state, fighter)));
-  if (arenaState !== state || state.token !== token) return;
-  state.last = performance.now();
+  preloadFighterSprites(fighters.map((fighter) => fighter.type));
   arenaFrame = requestAnimationFrame(stepArena);
 }
 
@@ -804,27 +975,116 @@ function eliminateFighter(fighter, now, angle) {
   fighter.exitUntil = now + 640;
   fighter.hitStarted = now;
   fighter.hitUntil = now + 640;
+  fighter.respawnAt = now + 2600;
   fighter.vx = Math.cos(angle) * 18;
   fighter.vy = Math.sin(angle) * 9;
 }
 
+function reviveFighter(fighter, index, count) {
+  const meta = FIGHTER_META[fighter.type];
+  const lane = index / Math.max(1, count - 1);
+  fighter.x = 74 + lane * (ARENA_W - 148);
+  fighter.y = randomBetween(142, ARENA_H - 50);
+  fighter.vx = 0;
+  fighter.vy = 0;
+  fighter.face = index % 2 ? -1 : 1;
+  fighter.state = "walk";
+  fighter.actionUntil = 0;
+  fighter.cooldown = randomBetween(380, 980);
+  fighter.hitUntil = 0;
+  fighter.sparkUntil = 0;
+  fighter.carryUntil = 0;
+  fighter.hideUntil = 0;
+  fighter.alive = true;
+  fighter.hp = meta.hp;
+  fighter.maxHp = meta.hp;
+  fighter.respawnAt = 0;
+}
+
+function reviveArena(now) {
+  if (!arenaState) return;
+  arenaState.fighters.forEach((fighter, index) => reviveFighter(fighter, index, arenaState.fighters.length));
+  arenaState.winnerId = null;
+  arenaState.finishedAt = 0;
+  arenaState.last = now;
+}
+
+function chooseInteractionTarget(fighter, now) {
+  const zone = INTERACTION_ZONES[(fighter.id + Math.floor(now / 4200)) % INTERACTION_ZONES.length];
+  fighter.zone = zone;
+  fighter.targetX = clamp(zone.x + zone.w * randomBetween(0.18, 0.82), 48, ARENA_W - 48);
+  fighter.targetY = clamp(zone.y + zone.h + randomBetween(20, 48), 76, ARENA_H - 28);
+  fighter.behaviorUntil = now + randomBetween(2600, 5200);
+  fighter.carryUntil = now + randomBetween(1200, 2600);
+  fighter.hideUntil = now + randomBetween(1600, 3400);
+}
+
+function updateAmbientFighter(fighter, dt, now, mode) {
+  if (now > fighter.behaviorUntil || Math.hypot(fighter.targetX - fighter.x, fighter.targetY - fighter.y) < 18) {
+    if (mode === "interactive" && Math.random() < 0.72) chooseInteractionTarget(fighter, now);
+    else {
+      fighter.zone = null;
+      fighter.targetX = randomBetween(58, ARENA_W - 58);
+      fighter.targetY = randomBetween(112, ARENA_H - 40);
+      fighter.behaviorUntil = now + randomBetween(2400, 5200);
+      fighter.carryUntil = 0;
+      fighter.hideUntil = 0;
+    }
+  }
+
+  const dx = fighter.targetX - fighter.x;
+  const dy = fighter.targetY - fighter.y;
+  const distanceToTarget = Math.max(1, Math.hypot(dx, dy));
+  const speed = FIGHTER_META[fighter.type].speed * dt * (mode === "patrol" ? 0.64 : 0.78);
+  fighter.vx += (dx / distanceToTarget) * speed;
+  fighter.vy += (dy / distanceToTarget) * speed;
+  fighter.vx *= 0.76;
+  fighter.vy *= 0.76;
+  fighter.x = clamp(fighter.x + fighter.vx, 40, ARENA_W - 48);
+  fighter.y = clamp(fighter.y + fighter.vy, 72, ARENA_H - 28);
+  if (Math.abs(fighter.vx) > 0.04) fighter.face = fighter.vx > 0 ? 1 : -1;
+  fighter.state = now < fighter.carryUntil && mode === "interactive" ? "carry" : "walk";
+}
+
 function updateFighter(fighter, fighters, dt, now) {
+  const mode = arenaState?.mode || "interactive";
   if (!fighter.alive) {
     fighter.vx *= 0.86;
     fighter.vy *= 0.86;
     fighter.x = clamp(fighter.x + fighter.vx, 32, ARENA_W - 32);
     fighter.y = clamp(fighter.y + fighter.vy, 74, ARENA_H - 22);
+    if (mode === "spar" && now > fighter.respawnAt && arenaState?.finishedAt && now - arenaState.finishedAt > 2800) {
+      reviveArena(now);
+    }
     return;
   }
 
   const meta = FIGHTER_META[fighter.type];
+  if (mode === "patrol") {
+    updateAmbientFighter(fighter, dt, now, mode);
+    return;
+  }
+
   const living = livingFighters(fighters);
   if (living.length <= 1) {
     arenaState.winnerId = fighter.id;
     if (!arenaState.finishedAt) arenaState.finishedAt = now;
+    if (mode === "spar" && now - arenaState.finishedAt > 2800) {
+      reviveArena(now);
+      return;
+    }
+    if (mode === "interactive") {
+      updateAmbientFighter(fighter, dt, now, mode);
+      return;
+    }
     fighter.state = "walk";
     fighter.vx *= 0.74;
     fighter.vy *= 0.74;
+    return;
+  }
+
+  if (mode === "interactive" && Math.random() < 0.018 && now > fighter.actionUntil) {
+    updateAmbientFighter(fighter, dt, now, mode);
     return;
   }
 
@@ -849,7 +1109,10 @@ function updateFighter(fighter, fighters, dt, now) {
     target.state = "hurt";
     target.hitStarted = now;
     target.hitUntil = now + 260;
-    target.hp = Math.max(0, target.hp - damage);
+    target.sparkUntil = now + 180;
+    target.sparkX = target.x - Math.cos(angle) * 14;
+    target.sparkY = target.y - FIGHTER_META[target.type].sprites.idle.h * FIGHTER_META[target.type].scale * 0.58;
+    target.hp = Math.max(mode === "interactive" ? 1 : 0, target.hp - damage);
     if (target.hp <= 0) {
       eliminateFighter(target, now, angle);
     }
@@ -877,88 +1140,146 @@ function updateFighter(fighter, fighters, dt, now) {
   if (!acting && now > fighter.hitUntil) fighter.state = "walk";
 }
 
-function syncFighterObject(fighter, now, dt) {
-  if (!fighter.object) return;
-  const world = screenToWorld(fighter.x, fighter.y);
-  const object = fighter.object;
-  const living = arenaState ? livingFighters(arenaState.fighters) : [];
-  const opponent = fighter.alive ? nearestOpponent(fighter, arenaState.fighters).target : null;
+function fighterSprite(fighter, now) {
   const acting = now < fighter.actionUntil;
   const hit = now < fighter.hitUntil;
-  const actionDuration = Math.max(1, fighter.actionUntil - fighter.actionStarted);
-  const actionT = clamp((now - fighter.actionStarted) / actionDuration, 0, 1);
-  const pulse = Math.sin(now / 120 + fighter.id);
+  const meta = FIGHTER_META[fighter.type];
+  if (!fighter.alive) return meta.sprites.ko;
+  if (hit) return meta.sprites.hurt;
+  if (acting) return meta.sprites[fighter.state === "blast" ? "blast" : "strike"];
+  if (arenaState?.winnerId === fighter.id && livingFighters(arenaState.fighters).length === 1) {
+    return meta.sprites.blast;
+  }
+  if (fighter.state === "carry") return meta.sprites.strike;
+  if (Math.hypot(fighter.vx, fighter.vy) > 0.3) return meta.sprites.walk;
+  return meta.sprites.idle;
+}
+
+function drawSprite(ctx, sprite, x, y, scale, frameIndex, face, opacity = 1) {
+  const image = getSpriteImage(sprite.src);
+  if (!image.complete || !image.naturalWidth) return;
+  const frame = sprite.frames[frameIndex % sprite.frames.length] || 0;
+  const width = sprite.w;
+  const height = sprite.h;
+  const sx = frame * width;
+  const sy = 0;
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.translate(x, y);
+  ctx.scale(face, 1);
+  ctx.drawImage(image, sx, sy, width, height, -width * scale * 0.5, -height * scale, width * scale, height * scale);
+  ctx.restore();
+}
+
+function drawFighter(ctx, fighter, now) {
+  const meta = FIGHTER_META[fighter.type];
+  const sprite = fighterSprite(fighter, now);
   const defeatedFade = fighter.alive ? 1 : clamp((fighter.exitUntil - now) / 640, 0, 1);
+  if (!fighter.alive && defeatedFade <= 0.02) return;
 
-  object.visible = fighter.alive || defeatedFade > 0.02;
-  object.position.set(world.x, fighter.alive ? Math.max(0, pulse * 0.035) : (1 - defeatedFade) * 0.22, world.z);
-  object.rotation.set(0, object.rotation.y, 0);
-  object.scale.setScalar(1.34);
-  setModelOpacity(object, defeatedFade);
+  const frameIndex = Math.floor((now + fighter.frameOffset) / (1000 / (sprite.fps || 8)));
+  const bob = fighter.alive ? Math.sin((now + fighter.frameOffset) / 140) * 1.6 : 0;
+  const scale = meta.scale * (now < fighter.actionUntil ? 1.06 : 1);
+  const actionLean = now < fighter.actionUntil ? fighter.face * 5 : 0;
 
-  if (opponent) {
-    const targetWorld = screenToWorld(opponent.x, opponent.y);
-    object.rotation.y = Math.atan2(targetWorld.x - world.x, targetWorld.z - world.z);
+  ctx.save();
+  ctx.globalAlpha = 0.26 * defeatedFade;
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.ellipse(fighter.x, fighter.y + 4, 24 * scale / 3, 6 * scale / 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  if (fighter.alive && now < fighter.carryUntil && fighter.zone) {
+    const colors = arenaState.colors || {};
+    const lift = Math.sin((now - fighter.frameOffset) / 160) * 3;
+    ctx.save();
+    ctx.globalAlpha = 0.84;
+    ctx.translate(fighter.x + fighter.face * 24, fighter.y - 50 + lift);
+    ctx.rotate(fighter.face * 0.08);
+    ctx.fillStyle = colors.panel || "rgba(255,255,255,0.78)";
+    ctx.strokeStyle = colors.line || "rgba(0,0,0,0.32)";
+    ctx.lineWidth = 1;
+    ctx.fillRect(-26, -14, 52, 28);
+    ctx.strokeRect(-26, -14, 52, 28);
+    ctx.fillStyle = colors.ink || "#222";
+    ctx.globalAlpha = 0.62;
+    ctx.fillRect(-18, -6, 32, 3);
+    ctx.fillRect(-18, 2, 22, 3);
+    ctx.restore();
   }
 
-  if (!fighter.alive) {
-    object.rotation.z = fighter.face * 1.22 * (1 - defeatedFade);
-    object.scale.setScalar(1.34 * (0.72 + defeatedFade * 0.28));
-  } else if (hit) {
-    object.rotation.x = -0.22;
-    object.rotation.z = -fighter.face * 0.28;
-  } else if (acting && fighter.state === "strike") {
-    const snap = Math.sin(actionT * Math.PI);
-    object.position.x += fighter.face * snap * 0.16;
-    object.rotation.z = -fighter.face * snap * 0.42;
-    object.scale.set(1.34 + snap * 0.08, 1.34 - snap * 0.05, 1.34 + snap * 0.08);
-  } else if (acting && fighter.state === "blast") {
-    const snap = Math.sin(actionT * Math.PI);
-    object.position.y += snap * 0.2;
-    object.rotation.y += fighter.face * snap * 0.35;
-  } else if (arenaState?.winnerId === fighter.id && living.length === 1) {
-    object.position.y += Math.max(0, pulse) * 0.18;
-    object.rotation.y += pulse * 0.06;
+  drawSprite(ctx, sprite, fighter.x + actionLean, fighter.y + bob, scale, frameIndex, fighter.face, defeatedFade);
+
+  if (fighter.alive && fighter.zone && now < fighter.hideUntil) {
+    const colors = arenaState.colors || {};
+    const coverW = Math.min(138, Math.max(72, fighter.zone.w * 0.3));
+    const coverH = 34;
+    const coverX = clamp(fighter.x - coverW / 2, fighter.zone.x + 8, fighter.zone.x + fighter.zone.w - coverW - 8);
+    const coverY = fighter.zone.y + fighter.zone.h - 12;
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = colors.panel || "rgba(255,255,255,0.78)";
+    ctx.strokeStyle = colors.line || "rgba(0,0,0,0.32)";
+    ctx.lineWidth = 1;
+    ctx.fillRect(coverX, coverY, coverW, coverH);
+    ctx.strokeRect(coverX, coverY, coverW, coverH);
+    ctx.globalAlpha = 0.42;
+    ctx.fillStyle = colors.ink || "#222";
+    ctx.fillRect(coverX + 12, coverY + 10, coverW - 32, 3);
+    ctx.fillRect(coverX + 12, coverY + 18, coverW - 52, 3);
+    ctx.restore();
   }
 
-  if (fighter.mixer) fighter.mixer.update(dt / 1000);
-  const animation = animationNameForFighter(fighter, now);
-  playFighterAnimation(fighter, animation.name, animation.key);
-  if (fighter.ring) {
-    fighter.ring.visible = fighter.alive;
-    fighter.ring.position.set(world.x, 0.015, world.z);
-    const health = fighter.hp / fighter.maxHp;
-    fighter.ring.scale.setScalar(0.76 + health * 0.36);
-    fighter.ring.material.opacity = arenaState?.winnerId === fighter.id ? 0.92 : 0.34 + health * 0.32;
+  if (fighter.alive) {
+    const hpWidth = 34;
+    ctx.fillStyle = "rgba(0,0,0,0.34)";
+    ctx.fillRect(fighter.x - hpWidth / 2, fighter.y + 8, hpWidth, 3);
+    ctx.fillStyle = meta.accent;
+    ctx.fillRect(fighter.x - hpWidth / 2, fighter.y + 8, hpWidth * (fighter.hp / fighter.maxHp), 3);
   }
-  if (fighter.effect) {
-    const visible = acting && fighter.alive;
-    fighter.effect.visible = visible;
-    if (visible) {
-      const snap = Math.sin(actionT * Math.PI);
-      fighter.effect.position.set(
-        world.x + Math.sin(object.rotation.y) * (0.52 + actionT * 0.72),
-        1.12 + snap * 0.18,
-        world.z + Math.cos(object.rotation.y) * (0.52 + actionT * 0.72)
-      );
-      fighter.effect.scale.setScalar(fighter.state === "blast" ? 1.15 + actionT * 1.8 : 0.72 + snap * 0.72);
-      fighter.effect.material.opacity = fighter.state === "blast" ? 0.62 * (1 - actionT * 0.35) : 0.5 * snap;
-    }
+
+  if (now < fighter.sparkUntil) {
+    const spark = {
+      src: "assets/fighters/fx/hitspark.png",
+      w: 16,
+      h: 39,
+      frames: frameRange(0, 4),
+      fps: 24
+    };
+    const sparkFrame = Math.floor((now - fighter.hitStarted) / 42);
+    drawSprite(ctx, spark, fighter.sparkX, fighter.sparkY, 2, sparkFrame, 1, clamp((fighter.sparkUntil - now) / 180, 0, 1));
   }
 }
 
+function drawInteractionHints(ctx, now) {
+  if (arenaState?.mode !== "interactive") return;
+  const colors = arenaState.colors || {};
+  ctx.save();
+  ctx.globalAlpha = 0.08 + Math.sin(now / 900) * 0.025;
+  ctx.strokeStyle = colors.ink || "#222";
+  ctx.setLineDash([8, 8]);
+  INTERACTION_ZONES.forEach((zone) => {
+    ctx.strokeRect(zone.x, zone.y, zone.w, zone.h);
+  });
+  ctx.restore();
+}
+
 function stepArena(now) {
-  if (!arenaState?.renderer) return;
+  if (!arenaState?.ctx) return;
   const elapsed = now - arenaState.last;
-  if (elapsed < 33) {
+  if (elapsed < 41) {
     arenaFrame = requestAnimationFrame(stepArena);
     return;
   }
   const dt = Math.min(66, elapsed);
   arenaState.last = now;
   for (const fighter of arenaState.fighters) updateFighter(fighter, arenaState.fighters, dt, now);
-  for (const fighter of arenaState.fighters) syncFighterObject(fighter, now, dt);
-  arenaState.renderer.render(arenaState.scene, arenaState.camera);
+  const { ctx } = arenaState;
+  ctx.clearRect(0, 0, ARENA_W, ARENA_H);
+  drawInteractionHints(ctx, now);
+  [...arenaState.fighters].sort((a, b) => a.y - b.y).forEach((fighter) => drawFighter(ctx, fighter, now));
   arenaFrame = requestAnimationFrame(stepArena);
 }
 
@@ -974,14 +1295,12 @@ function renderArena() {
   }
   const count = Math.max(2, Math.min(fighterLimit(), Number(battle.count) || 3));
   const theme = battle.theme || "mixed";
-  const key = `${count}-${theme}`;
+  const mode = battle.mode || "interactive";
+  const key = `${count}-${theme}-${mode}`;
   if (arenaState?.key === key) return;
   stopArena();
   arena.classList.add("active");
-  startArena(count, theme).catch((error) => {
-    console.error("Dashboard 3D arena failed", error);
-    if (arenaState?.key === key) stopArena();
-  });
+  startArena(count, theme, mode);
 }
 
 function weatherLabel(code) {
@@ -1178,6 +1497,56 @@ function renderNotes() {
   )).join("") || `<div class="empty-state">尚未設定焦點內容</div>`;
 }
 
+function renderRhythm() {
+  const rhythms = activeProfile.rhythms || [];
+  $("#rhythmBoard").innerHTML = rhythms.map((item, index) => (
+    `<article class="rhythm-card">
+      <span>${pad(index + 1)}</span>
+      <strong>${item.value || "--"}</strong>
+      <h2>${item.title}</h2>
+      <p>${item.meta || ""}</p>
+    </article>`
+  )).join("") || `<div class="empty-state">尚未設定今日節奏</div>`;
+}
+
+async function renderSystem() {
+  const items = [
+    { label: "螢幕", value: `${window.innerWidth}×${window.innerHeight}`, meta: `DPR ${Math.round((window.devicePixelRatio || 1) * 10) / 10}` },
+    { label: "網路", value: navigator.onLine ? "ONLINE" : "OFFLINE", meta: navigator.connection?.effectiveType ? navigator.connection.effectiveType.toUpperCase() : "LOCAL" },
+    { label: "儲存", value: "LOCAL", meta: "瀏覽器本機設定" },
+    { label: "護眼", value: "ACTIVE", meta: "位移與亮度微調" }
+  ];
+  if (navigator.getBattery) {
+    try {
+      const battery = await navigator.getBattery();
+      items.splice(1, 0, {
+        label: "電量",
+        value: `${Math.round(battery.level * 100)}%`,
+        meta: battery.charging ? "CHARGING" : "BATTERY"
+      });
+    } catch {
+      // Battery API may be unavailable.
+    }
+  }
+  $("#systemGrid").innerHTML = items.map((item) => (
+    `<article class="system-card">
+      <span>${item.label}</span>
+      <strong>${item.value}</strong>
+      <p>${item.meta}</p>
+    </article>`
+  )).join("");
+}
+
+function renderBriefing() {
+  const briefings = activeProfile.briefings || [];
+  $("#briefingList").innerHTML = briefings.map((item, index) => (
+    `<article class="briefing-item">
+      <span>${pad(index + 1)}</span>
+      <p>${item}</p>
+    </article>`
+  )).join("") || `<div class="empty-state">尚未設定今日簡報</div>`;
+}
+
 function setPanel(index) {
   if (index < 0) return;
   activeIndex = index;
@@ -1298,6 +1667,7 @@ function openConfig() {
   $("#battleEnabledInput").checked = Boolean(activeProfile.battle?.enabled);
   $("#battleCountInput").value = activeProfile.battle?.count || 3;
   $("#battleThemeInput").value = activeProfile.battle?.theme || "mixed";
+  $("#battleModeInput").value = activeProfile.battle?.mode || "interactive";
   $("#configDialog").showModal();
 }
 
@@ -1345,11 +1715,12 @@ function setupConfig() {
     activeProfile.events = collectEvents();
     activeProfile.countdowns = collectCountdowns();
     activeProfile.notes = collectNotes();
-    activeProfile.battle = {
-      enabled: $("#battleEnabledInput").checked,
-      count: Math.max(2, Math.min(6, Number($("#battleCountInput").value) || 3)),
-      theme: $("#battleThemeInput").value || "mixed"
-    };
+	    activeProfile.battle = {
+	      enabled: $("#battleEnabledInput").checked,
+	      count: Math.max(2, Math.min(6, Number($("#battleCountInput").value) || 3)),
+	      theme: $("#battleThemeInput").value || "mixed",
+	      mode: $("#battleModeInput").value || "interactive"
+	    };
     updateActiveProfile();
     applyProfile();
     renderWelcome();
@@ -1376,6 +1747,7 @@ function setupConfig() {
     $("#battleEnabledInput").checked = Boolean(activeProfile.battle?.enabled);
     $("#battleCountInput").value = activeProfile.battle?.count || 3;
     $("#battleThemeInput").value = activeProfile.battle?.theme || "mixed";
+    $("#battleModeInput").value = activeProfile.battle?.mode || "interactive";
     updateActiveProfile();
     applyProfile();
   });
@@ -1402,7 +1774,10 @@ function init() {
   weatherTimer = setInterval(loadWeather, 10 * 60 * 1000);
   startBurnInProtection();
   setInterval(tick, 1000);
-  window.addEventListener("resize", setScale);
+  window.addEventListener("resize", () => {
+    setScale();
+    renderSystem();
+  });
   registerServiceWorker();
 }
 
